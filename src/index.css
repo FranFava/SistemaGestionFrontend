@@ -1,0 +1,13 @@
+/**
+ * ============================================
+ * Estilos Principales
+ * Archivo de entrada principal de CSS
+ * ============================================
+ */
+
+/* Reset y estilos base */
+* {
+  box-sizing: border-box;
+}
+
+/* El body y #root están en glassmorphism.css */
