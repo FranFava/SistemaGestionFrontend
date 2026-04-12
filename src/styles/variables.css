@@ -1,0 +1,85 @@
+/**
+ * ============================================
+ * Variables CSS - Custom Properties
+ * Sistema de Diseño - Sistema Francisco
+ * ============================================
+ */
+
+:root {
+  /* ------------------------------------------
+     Paleta de Colores
+     ------------------------------------------ */
+  --sf-primary: #415a77;
+  --sf-primary-light: #778da9;
+  --sf-primary-dark: #1b263b;
+  --sf-secondary: #e0e1dd;
+  --sf-accent: #00b4d8;
+  --sf-accent-hover: #0077b6;
+  
+  /* Colores semánticos */
+  --sf-success: #2ecc71;
+  --sf-warning: #f39c12;
+  --sf-danger: #e74c3c;
+  --sf-info: #3498db;
+  
+  /* Colores de fondo */
+  --sf-bg-primary: #0d1b2a;
+  --sf-bg-secondary: #1b263b;
+  --sf-bg-card: rgba(255, 255, 255, 0.08);
+  
+  /* Colores de texto */
+  --sf-text-primary: #ffffff;
+  --sf-text-secondary: rgba(255, 255, 255, 0.7);
+  --sf-text-muted: rgba(255, 255, 255, 0.5);
+  
+  /* ------------------------------------------
+     Tipografía
+     ------------------------------------------ */
+  --sf-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  --sf-font-size-base: 1rem;
+  --sf-font-size-sm: 0.875rem;
+  --sf-font-size-lg: 1.125rem;
+  --sf-font-size-xl: 1.25rem;
+  --sf-font-size-2xl: 1.5rem;
+  
+  /* ------------------------------------------
+     Espaciado
+     ------------------------------------------ */
+  --sf-spacing-xs: 0.25rem;
+  --sf-spacing-sm: 0.5rem;
+  --sf-spacing-md: 1rem;
+  --sf-spacing-lg: 1.5rem;
+  --sf-spacing-xl: 2rem;
+  --sf-spacing-2xl: 3rem;
+  
+  /* ------------------------------------------
+     Bordes y Radio
+     ------------------------------------------ */
+  --sf-border-radius-sm: 4px;
+  --sf-border-radius: 8px;
+  --sf-border-radius-lg: 12px;
+  --sf-border-radius-xl: 16px;
+  --sf-border-color: rgba(255, 255, 255, 0.1);
+  
+  /* ------------------------------------------
+     Sombras
+     ------------------------------------------ */
+  --sf-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.15);
+  --sf-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  --sf-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.3);
+  
+  /* ------------------------------------------
+     Transiciones
+     ------------------------------------------ */
+  --sf-transition-fast: 150ms ease;
+  --sf-transition: 250ms ease;
+  --sf-transition-slow: 350ms ease;
+  
+  /* ------------------------------------------
+    Breakpoints
+     ------------------------------------------ */
+  --sf-breakpoint-sm: 576px;
+  --sf-breakpoint-md: 768px;
+  --sf-breakpoint-lg: 992px;
+  --sf-breakpoint-xl: 1200px;
+}

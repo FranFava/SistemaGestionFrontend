@@ -1,143 +1,117 @@
 /**
  * ============================================
- * Página de Login
- * Formulario de autenticación de usuarios
+ * Login Page - Página de Autenticación
+ * Sistema Francisco
+ *Aplicando SOLID
  * ============================================
  */
 
-// React - Hooks
-import { useState, useEffect } from 'react';
-
-import { useAuth } from '../context/AuthContext';
-
-import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react'
+import useLogin from '../hooks/useLogin'
 
 /**
  * Página de Login
  * @description Formulario para autenticar usuarios en el sistema
- * @returns {JSX.Element} Formulario de inicio de sesión
+ * @returns {JSX.Element}
  */
-const Login = () => {
-  // ============================================
-  // Estado - Variables de estado del componente
-  // ============================================
-  
-  // Campos del formulario
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  
-  // Estados de la UI
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  
-  // Context y navegación
-  const { user, login } = useAuth();
-  const navigate = useNavigate();
-
-  // ============================================
-  // Handlers - Funciones manejadoras
-  // ============================================
-
-  /**
-   * Manejador del envío del formulario
-   * @param {Event} e - Evento del formulario
-   */
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
-    
-    try {
-      await login(username, password);
-    } catch (err) {
-      setError(err.response?.data?.message || 'Error al iniciar sesión');
-      setLoading(false);
-    }
-  };
+function Login() {
+  const {
+    username,
+    password,
+    error,
+    loading,
+    user,
+    isValid,
+    handleSubmit,
+    handleUsernameChange,
+    handlePasswordChange,
+    navigate
+  } = useLogin()
 
   useEffect(() => {
     if (user && !loading) {
-      navigate('/dashboard', { replace: true });
+      navigate('/dashboard', { replace: true })
     }
-  }, [user, loading, navigate]);
+  }, [user, loading, navigate])
 
-  // ============================================
-  // Render - Renderizado del componente
-  // ============================================
-  
   return (
-    <div className="d-flex justify-content-center align-items-center vh-100 p-3">
-      {/* Card de login con efecto glass */}
-      <div className="glass-card p-4 p-md-5" style={{ width: '100%', maxWidth: '400px' }}>
-        
-        {/* Header con logo y título */}
+    <div className="min-vh-100 d-flex align-items-center justify-content-center glass-login-bg">
+      <div className="glass-card card p-4" style={{ maxWidth: '400px', width: '100%' }}>
         <div className="text-center mb-4">
-          <i className="bi bi-box-seam" style={{ fontSize: '3rem' }}></i>
-          <h2 className="mt-2">Sistema de Stock</h2>
-          <p className="text-glass-muted">Ingrese sus credenciales</p>
+          <i className="bi bi-box-seam display-1 text-primary"></i>
+          <h2 className="mt-3 fw-bold">Sistema de Stock</h2>
+          <p className="text-muted">Ingresá tus credenciales</p>
         </div>
-        
-        {/* Mensaje de error */}
-        {error && (
-          <div className="glass-alert alert-danger alert">
-            {error}
-          </div>
-        )}
-        
-        {/* Formulario de login */}
+
         <form onSubmit={handleSubmit}>
-          {/* Campo usuario */}
+          {error && (
+            <div className="alert alert-danger" role="alert">
+              <i className="bi bi-exclamation-triangle me-2"></i>
+              {error}
+            </div>
+          )}
+
           <div className="mb-3">
-            <label className="form-label">
-              <i className="bi bi-person me-1"></i>
-              Usuario
-            </label>
-            <input
-              type="text"
-              className="glass-input"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
+            <label className="form-label">Usuario</label>
+            <div className="input-group">
+              <span className="input-group-text">
+                <i className="bi bi-person"></i>
+              </span>
+              <input
+                type="text"
+                className="form-control glass-input"
+                value={username}
+                onChange={(e) => handleUsernameChange(e.target.value)}
+                placeholder="Ingrese usuario"
+                required
+              />
+            </div>
           </div>
-          
-          {/* Campo contraseña */}
+
           <div className="mb-3">
-            <label className="form-label">
-              <i className="bi bi-key me-1"></i>
-              Contraseña
-            </label>
-            <input
-              type="password"
-              className="glass-input"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+            <label className="form-label">Contraseña</label>
+            <div className="input-group">
+              <span className="input-group-text">
+                <i className="bi bi-key"></i>
+              </span>
+              <input
+                type="password"
+                className="form-control glass-input"
+                value={password}
+                onChange={(e) => handlePasswordChange(e.target.value)}
+                placeholder="Ingrese contraseña"
+                required
+              />
+            </div>
           </div>
-          
-          {/* Botón de envío */}
-          <button 
-            type="submit" 
-            className="glass-btn glass-btn-primary w-100" 
-            disabled={loading}
+
+          <button
+            type="submit"
+            className="btn btn-primary w-100 glass-btn"
+            disabled={!isValid || loading}
           >
             {loading ? (
               <>
                 <span className="spinner-border spinner-border-sm me-2"></span>
-                Ingresando...
+                Iniciando...
               </>
             ) : (
               <>
-                <i className="bi bi-box-arrow-in-right me-1"></i>
-                Ingresar
+                <i className="bi bi-box-arrow-in-right me-2"></i>
+                Iniciar Sesión
               </>
             )}
           </button>
         </form>
+
+        <div className="text-center mt-4">
+          <small className="text-muted">
+            Sistema de Gestión de Stock v2.0
+          </small>
+        </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Login;
+export default Login

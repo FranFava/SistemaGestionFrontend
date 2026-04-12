@@ -12,24 +12,30 @@ export const useDollar = () => {
 };
 
 export const DollarProvider = ({ children }) => {
+  // null indica que no se pudo obtener la cotización
+  // Los componentes deben verificar antes de usar en cálculos
   const [cotizacionDolar, setCotizacionDolar] = useState(() => {
     const saved = localStorage.getItem('cotizacionDolar');
-    return saved ? Number(saved) : 1000;
+    return saved ? Number(saved) : null;
   });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const fetchCotizacion = async () => {
     try {
       const response = await cajaService.getCotizacion();
       const data = response.data?.data || response.data;
-      if (data && data.cotizacionDolar) {
+      if (data && data.cotizacionDolar && Number(data.cotizacionDolar) > 0) {
         const newValue = Number(data.cotizacionDolar);
         setCotizacionDolar(newValue);
+        setError(null);
         localStorage.setItem('cotizacionDolar', newValue.toString());
-        console.log('[DollarContext] Cotización actualizada:', newValue);
+      } else {
+        setError('Sin datos de cotización');
       }
     } catch (err) {
-      console.error('[DollarContext] Error al obtener cotización:', err.message);
+      // Silenciar errores - el valor null indica que no hay cotización
+      setError('No se pudo obtener cotización');
     } finally {
       setLoading(false);
     }
@@ -44,16 +50,21 @@ export const DollarProvider = ({ children }) => {
       await cajaService.updateCotizacion(nuevoValor);
       setCotizacionDolar(nuevoValor);
       localStorage.setItem('cotizacionDolar', nuevoValor.toString());
-      console.log('[DollarContext] Cotización actualizada a:', nuevoValor);
       return true;
     } catch (err) {
-      console.error('[DollarContext] Error al actualizar cotización:', err.message);
       throw err;
     }
   };
 
   return (
-    <DollarContext.Provider value={{ cotizacionDolar, updateCotizacion, loading, refreshCotizacion: fetchCotizacion }}>
+    <DollarContext.Provider value={{ 
+      cotizacionDolar, 
+      updateCotizacion, 
+      loading, 
+      error,
+      hasCotizacion: cotizacionDolar !== null,
+      refreshCotizacion: fetchCotizacion 
+    }}>
       {children}
     </DollarContext.Provider>
   );
