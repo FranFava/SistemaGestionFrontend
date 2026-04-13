@@ -1,13 +1,15 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
+const API_URL = process.env.VITE_API_URL || 'http://localhost:5000'
+
 export default defineConfig({
   plugins: [react()],
   server: {
     port: 5173,
     proxy: {
       '/api': {
-        target: process.env.VITE_API_URL || 'http://localhost:5000',
+        target: API_URL,
         changeOrigin: true,
         secure: false,
         timeout: 30000,
@@ -18,10 +20,8 @@ export default defineConfig({
           console.error('═══════════════════════════════════════════');
           console.error('❌ ERROR DE CONEXIÓN AL BACKEND');
           console.error('URL solicitada:', req.url);
-          console.error('Backend objetivo:', process.env.VITE_API_URL || 'http://localhost:5000');
+          console.error('Backend objetivo:', API_URL);
           console.error('Error:', err.message);
-          console.error('═══════════════════════════════════════════');
-          console.error('¿Está el backend corriendo? Ejecuta: cd backend && npm run dev');
           console.error('═══════════════════════════════════════════');
         },
         onProxyRes: (proxyRes, req, res) => {
