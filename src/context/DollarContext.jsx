@@ -22,6 +22,13 @@ export const DollarProvider = ({ children }) => {
   const [error, setError] = useState(null);
 
   const fetchCotizacion = async () => {
+    // Solo fetch si hay token guardado - no buscar cotización si no está logueado
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+    
     try {
       const response = await cajaService.getCotizacion();
       const data = response.data?.data || response.data;
