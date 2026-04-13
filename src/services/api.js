@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'https://sistemagestionbackend.onrender.com';
+const API_URL = import.meta.env.VITE_API_URL || 'https://sistemagestionbackend.onrender.com/api';
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000;
 
