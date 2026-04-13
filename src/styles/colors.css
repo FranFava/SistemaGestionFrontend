@@ -1,0 +1,105 @@
+/**
+ * ============================================
+ * Colors - Paleta de Colores Estilo Mac/Apple
+ * Sistema Francisco
+ * ============================================
+ */
+
+:root {
+  /* ------------------------------------------
+     Colores Primarios - Apple Style
+     ------------------------------------------ */
+  --sf-primary: #0071E3;
+  --sf-primary-hover: #0077ED;
+  --sf-primary-light: #5AC8FA;
+  
+  /* Colores Secundarios */
+  --sf-secondary: #1D1D1F;
+  --sf-secondary-light: #86868B;
+  
+  /* ------------------------------------------
+     Colores Semánticos - Apple Style
+     ------------------------------------------ */
+  --sf-success: #34C759;
+  --sf-success-bg: #D1F7C4;
+  --sf-warning: #FF9500;
+  --sf-warning-bg: #FFE5D1;
+  --sf-danger: #FF3B30;
+  --sf-danger-bg: #FFDEDB;
+  --sf-info: #5AC8FA;
+  --sf-info-bg: #D1F7F8;
+  
+  /* ------------------------------------------
+     Fondo - Light Mode
+     ------------------------------------------ */
+  --sf-bg-primary: #FFFFFF;
+  --sf-bg-secondary: #F5F5F7;
+  --sf-bg-tertiary: #E5E5EA;
+  --sf-bg-card: #FFFFFF;
+  --sf-bg-hover: #F5F5F7;
+  
+  /* Fondo Oscuro (para modo oscuro futuro)
+  --sf-bg-dark: #1D1D1F;
+  --sf-bg-dark-secondary: #2C2C2E;
+  */
+  
+  /* ------------------------------------------
+     Texto
+     ------------------------------------------ */
+  --sf-text-primary: #1D1D1F;
+  --sf-text-secondary: #86868B;
+  --sf-text-tertiary: #AEAEB2;
+  --sf-text-inverse: #FFFFFF;
+  
+  /* ------------------------------------------
+     Bordes
+     ------------------------------------------ */
+  --sf-border: #D1D1D6;
+  --sf-border-light: #E5E5EA;
+  --sf-border-focus: #0071E3;
+  
+  /* ------------------------------------------
+     Sombras - Apple Style
+     ------------------------------------------ */
+  --sf-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --sf-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --sf-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.16);
+  --sf-shadow-xl: 0 12px 48px rgba(0, 0, 0, 0.2);
+  
+  /* ------------------------------------------
+     Gradientes
+     ------------------------------------------ */
+  --sf-gradient-primary: linear-gradient(135deg, #0071E3 0%, #5AC8FA 100%);
+  --sf-gradient-light: linear-gradient(180deg, #FFFFFF 0%, #F5F5F7 100%);
+  
+  /* ------------------------------------------
+     Radio - Bordes Redondeados Apple
+     ------------------------------------------ */
+  --sf-radius-sm: 6px;
+  --sf-radius: 10px;
+  --sf-radius-lg: 14px;
+  --sf-radius-xl: 20px;
+  --sf-radius-full: 9999px;
+  
+  /* ------------------------------------------
+     Transiciones
+     ------------------------------------------ */
+  --sf-transition-fast: 150ms ease;
+  --sf-transition: 250ms ease;
+  --sf-transition-slow: 350ms ease;
+}
+
+/* ------------------------------------------
+   Tema Oscuro (por defecto comentarios)
+   En caso de futur implementación:
+   
+   @media (prefers-color-scheme: dark) {
+     :root {
+       --sf-bg-primary: #1D1D1F;
+       --sf-bg-secondary: #2C2C2E;
+       --sf-bg-card: #2C2C2E;
+       --sf-text-primary: #FFFFFF;
+       --sf-text-secondary: #8E8E93;
+     }
+   }
+*/

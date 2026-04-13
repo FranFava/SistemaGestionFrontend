@@ -1,19 +1,58 @@
 /**
  * ============================================
- * Typography - Tipografía del Sistema
+ * Typography - Tipografía Estilo Apple/Mac
  * Sistema Francisco
  * ============================================
  */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family:Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  /* ------------------------------------------
+     Familia de Fuentes
+     ------------------------------------------ */
+  --sf-font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --sf-font-family-mono: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+  
+  /* ------------------------------------------
+     Tamaños - Escala Tipográfica
+     ------------------------------------------ */
+  --sf-font-size-xs: 0.6875rem;    /* 11px */
+  --sf-font-size-sm: 0.75rem;       /* 12px */
+  --sf-font-size-base: 0.875rem;  /* 14px */
+  --sf-font-size-md: 1rem;         /* 16px */
+  --sf-font-size-lg: 1.125rem;      /* 18px */
+  --sf-font-size-xl: 1.25rem;       /* 20px */
+  --sf-font-size-2xl: 1.5rem;      /* 24px */
+  --sf-font-size-3xl: 1.75rem;    /* 28px */
+  --sf-font-size-4xl: 2rem;        /* 32px */
+  --sf-font-size-5xl: 2.5rem;    /* 40px */
+  
+  /* ------------------------------------------
+     Pesos
+     ------------------------------------------ */
+  --sf-font-weight-light: 300;
+  --sf-font-weight-regular: 400;
+  --sf-font-weight-medium: 500;
+  --sf-font-weight-semibold: 600;
+  --sf-font-weight-bold: 700;
+  
+  /* ------------------------------------------
+     Line Height
+     ------------------------------------------ */
+  --sf-line-height-tight: 1.2;
+  --sf-line-height-normal: 1.5;
+  --sf-line-height-relaxed: 1.75;
+}
 
 /* ------------------------------------------
-   Font Family
+   Base
    ------------------------------------------ */
 body {
   font-family: var(--sf-font-family);
   font-size: var(--sf-font-size-base);
-  line-height: 1.5;
+  line-height: var(--sf-line-height-normal);
+  color: var(--sf-text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -23,86 +62,85 @@ body {
    ------------------------------------------ */
 h1, h2, h3, h4, h5, h6,
 .h1, .h2, .h3, .h4, .h5, .h6 {
-  margin: 0 0 var(--sf-spacing-md);
-  font-weight: 600;
-  line-height: 1.2;
+  font-family: var(--sf-font-family);
+  font-weight: var(--sf-font-weight-semibold);
+  line-height: var(--sf-line-height-tight);
   color: var(--sf-text-primary);
+  margin: 0;
 }
 
-h1, .h1 { font-size: 2rem; }
-h2, .h2 { font-size: 1.75rem; }
-h3, .h3 { font-size: 1.5rem; }
-h4, .h4 { font-size: 1.25rem; }
-h5, .h5 { font-size: 1rem; }
-h6, .h6 { font-size: 0.875rem; }
+h1, .h1 { font-size: var(--sf-font-size-5xl); }
+h2, .h2 { font-size: var(--sf-font-size-4xl); }
+h3, .h3 { font-size: var(--sf-font-size-3xl); }
+h4, .h4 { font-size: var(--sf-font-size-2xl); }
+h5, .h5 { font-size: var(--sf-font-size-xl); }
+h6, .h6 { font-size: var(--sf-font-size-lg); }
 
 /* ------------------------------------------
-   Paragraphs
+   Párrafos
    ------------------------------------------ */
 p {
   margin: 0 0 var(--sf-spacing-md);
+  color: var(--sf-text-secondary);
 }
 
 /* ------------------------------------------
    Links
    ------------------------------------------ */
 a {
-  color: var(--sf-accent);
+  color: var(--sf-primary);
   text-decoration: none;
   transition: color var(--sf-transition-fast);
 }
 
 a:hover {
-  color: var(--sf-accent-hover);
+  color: var(--sf-primary-hover);
 }
 
 /* ------------------------------------------
-   Lists
-   ------------------------------------------ */
-ul, ol {
-  margin: 0 0 var(--sf-spacing-md);
-  padding-left: var(--sf-spacing-lg);
-}
-
-li {
-  margin-bottom: var(--sf-spacing-xs);
-}
-
-/* ------------------------------------------
-   Small Text
+   Labels y Textos Pequeños
    ------------------------------------------ */
 small {
   font-size: var(--sf-font-size-sm);
-  color: var(--sf-text-muted);
+  color: var(--sf-text-secondary);
+}
+
+label {
+  font-size: var(--sf-font-size-sm);
+  font-weight: var(--sf-font-weight-medium);
+  color: var(--sf-text-primary);
 }
 
 /* ------------------------------------------
    Code
    ------------------------------------------ */
 code {
-  font-family: 'Fira Code', 'Monaco', monospace;
+  font-family: var(--sf-font-family-mono);
   font-size: 0.9em;
   padding: 0.2em 0.4em;
-  background: var(--sf-bg-card);
-  border-radius: var(--sf-border-radius-sm);
+  background: var(--sf-bg-tertiary);
+  border-radius: var(--sf-radius-sm);
 }
 
 /* ------------------------------------------
-   Blockquote
+   Utilities de Texto
    ------------------------------------------ */
-blockquote {
-  margin: 0 0 var(--sf-spacing-md);
-  padding: var(--sf-spacing-md);
-  border-left: 4px solid var(--sf-accent);
-  background: var(--sf-bg-card);
-}
+.text-primary { color: var(--sf-text-primary) !important; }
+.text-secondary { color: var(--sf-text-secondary) !important; }
+.text-tertiary { color: var(--sf-text-tertiary) !important; }
+.text-accent { color: var(--sf-primary) !important; }
+.text-success { color: var(--sf-success) !important; }
+.text-warning { color: var(--sf-warning) !important; }
+.text-danger { color: var(--sf-danger) !important; }
 
-/* ------------------------------------------
-   Labels
-   ------------------------------------------ */
-label {
-  display: inline-block;
-  margin-bottom: var(--sf-spacing-xs);
-  font-weight: 500;
-  color: var(--sf-text-secondary);
-}
+.text-xs { font-size: var(--sf-font-size-xs); }
+.text-sm { font-size: var(--sf-font-size-sm); }
+.text-base { font-size: var(--sf-font-size-base); }
+.text-lg { font-size: var(--sf-font-size-lg); }
+.text-xl { font-size: var(--sf-font-size-xl); }
+
+.font-light { font-weight: var(--sf-font-weight-light); }
+.font-regular { font-weight: var(--sf-font-weight-regular); }
+.font-medium { font-weight: var(--sf-font-weight-medium); }
+.font-semibold { font-weight: var(--sf-font-weight-semibold); }
+.font-bold { font-weight: var(--sf-font-weight-bold); }
