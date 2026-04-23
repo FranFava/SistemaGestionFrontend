@@ -86,6 +86,7 @@ const Navbar = () => {
   // Elementos del menú de navegación
   const navItems = [
     { path: '/dashboard', label: 'Dashboard', icon: 'grid' },
+    { path: '/nueva-venta', label: 'Nueva Venta', icon: 'cart', primary: true },
     { path: '/productos', label: 'Productos', icon: 'box' },
     { path: '/movimientos', label: 'Movimientos', icon: 'arrow-left-right' },
     { path: '/caja', label: 'Caja', icon: 'cash-coin' },
@@ -129,10 +130,10 @@ const Navbar = () => {
             {user && navItems.map(item => (
               <li className="nav-item" key={item.path}>
                 <Link 
-                  className={`nav-link ${location.pathname === item.path ? 'active fw-bold' : ''}`}
+                  className={`nav-link ${location.pathname === item.path ? 'active fw-bold' : ''} ${item.primary ? 'btn btn-success btn-sm ms-2' : ''}`}
                   to={item.path}
                 >
-                  <i className={`bi bi-${item.icon}-fill me-1`}></i>
+                  <i className={`bi bi-${item.icon}${item.primary ? '' : '-fill'} me-1`}></i>
                   {item.label}
                 </Link>
               </li>

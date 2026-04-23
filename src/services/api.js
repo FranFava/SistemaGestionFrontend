@@ -152,4 +152,13 @@ export const alertaService = {
   generarTodas: () => api.post('/alertas/generar')
 };
 
+export const ventaService = {
+  crear: (data) => api.post('/ventas', data),
+  confirmarReserva: (id) => api.post(`/ventas/${id}/confirmar`),
+  cancelarReserva: (id) => api.post(`/ventas/${id}/cancelar`),
+  getById: (id) => api.get(`/ventas/${id}`),
+  getAll: (params) => api.get('/ventas', { params }),
+  buscarCliente: (texto) => api.get('/ventas/buscar-cliente', { params: { q: texto } })
+};
+
 export default api;

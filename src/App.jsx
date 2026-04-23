@@ -12,6 +12,7 @@ import Usuarios from './pages/Usuarios';
 import PPConfig from './pages/PPConfig';
 import Caja from './pages/Caja';
 import Alertas from './pages/Alertas';
+import NuevaVenta from './pages/NuevaVenta';
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
             <Route path="ppconfig" element={<PPConfig />} />
             <Route path="caja" element={<Caja />} />
             <Route path="alertas" element={<Alertas />} />
+            <Route path="nueva-venta" element={<NuevaVenta />} />
           </Route>
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
