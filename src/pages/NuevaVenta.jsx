@@ -1,9 +1,10 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { productoService, clienteService, ventaService, configService } from '../services/api';
 import { toast, confirm } from '../components/Swal';
 import { guardarTicket } from '../utils/ticketPDF';
 
 const NuevaVenta = () => {
+  const [step, setStep] = useState(1);
   const [productos, setProductos] = useState([]);
   const [carrito, setCarrito] = useState([]);
   const [cliente, setCliente] = useState(null);
@@ -11,12 +12,11 @@ const NuevaVenta = () => {
   const [busquedaCliente, setBusquedaCliente] = useState('');
   const [sugerenciasProductos, setSugerenciasProductos] = useState([]);
   const [sugerenciasClientes, setSugerenciasClientes] = useState([]);
-  const [mostrarSugerencias, setMostrarSugerencias] = useState(false);
-  const [mostrarSugerenciasCliente, setMostrarSugerenciasCliente] = useState(false);
   const [loading, setLoading] = useState(false);
   const [config, setConfig] = useState(null);
   const [mostrarNuevoCliente, setMostrarNuevoCliente] = useState(false);
   const [nuevoCliente, setNuevoCliente] = useState({ nombre: '', documento: '', telefono: '' });
+  const [metodoPago, setMetodoPago] = useState('efectivo');
 
   const productoRef = useRef(null);
   const clienteRef = useRef(null);
@@ -50,7 +50,6 @@ const NuevaVenta = () => {
       p.sku?.toLowerCase().includes(texto.toLowerCase())
     ).slice(0, 8);
     setSugerenciasProductos(filtrados);
-    setMostrarSugerencias(true);
   };
 
   const buscarClientes = async (texto) => {
@@ -61,25 +60,18 @@ const NuevaVenta = () => {
     try {
       const { data } = await ventaService.buscarCliente(texto);
       setSugerenciasClientes(data);
-      setMostrarSugerenciasCliente(true);
     } catch {}
   };
 
   const agregarProducto = (producto) => {
-    const existente = carrito.find(c => c.productoId === producto._id && 
-      c.variante?.color === null && c.variante?.capacidad === null);
+    const existente = carrito.find(c => c.productoId === producto._id);
     
-    let stockTotal = 0;
-    if (producto.variantes?.length > 0) {
-      stockTotal = producto.variantes.reduce((s, v) => s + (v.stock || 0), 0);
-    }
+    let stockTotal = producto.variantes?.reduce((s, v) => s + (v.stock || 0), 0) || 0;
 
     if (existente) {
       if (existente.cantidad < stockTotal) {
         setCarrito(carrito.map(c => 
-          c.productoId === producto._id 
-            ? { ...c, cantidad: c.cantidad + 1 }
-            : c
+          c.productoId === producto._id ? { ...c, cantidad: c.cantidad + 1 } : c
         ));
       } else {
         toast.warning('Stock insuficiente');
@@ -92,8 +84,7 @@ const NuevaVenta = () => {
         precioUnitario: producto.precioVenta,
         cantidad: 1,
         sku: producto.sku,
-        garantiaMeses: producto.garantiaMeses || producto.garantia?.meses || 12,
-        variante: null
+        garantiaMeses: producto.garantiaMeses || 12
       }]);
     }
     setBusquedaProducto('');
@@ -106,17 +97,13 @@ const NuevaVenta = () => {
 
   const actualizarCantidad = (index, nuevaCantidad) => {
     if (nuevaCantidad < 1) return;
-    setCarrito(carrito.map((c, i) => 
-      i === index ? { ...c, cantidad: nuevaCantidad } : c
-    ));
+    setCarrito(carrito.map((c, i) => i === index ? { ...c, cantidad: nuevaCantidad } : c));
   };
 
   const seleccionarCliente = (c) => {
     setCliente(c);
     setBusquedaCliente(c.nombre);
     setSugerenciasClientes([]);
-    setMostrarSugerenciasCliente(false);
-    setMostrarNuevoCliente(false);
   };
 
   const crearNuevoCliente = () => {
@@ -125,7 +112,6 @@ const NuevaVenta = () => {
       return;
     }
     setCliente({ ...nuevoCliente, _id: 'nuevo', crear: true });
-    setBusquedaCliente(nuevoCliente.nombre);
     setMostrarNuevoCliente(false);
   };
 
@@ -142,9 +128,7 @@ const NuevaVenta = () => {
     }
 
     const confirmados = await confirm(
-      esReserva 
-        ? '¿Confirmar como RESERVA (10% seña)?' 
-        : '¿Confirmar la VENTA?'
+      esReserva ? '¿Confirmar como RESERVA (10% seña)?' : '¿Confirmar la VENTA?'
     );
     if (!confirmados) return;
 
@@ -155,29 +139,27 @@ const NuevaVenta = () => {
         items: carrito.map(c => ({
           productoId: c.productoId,
           cantidad: c.cantidad,
-          variante: c.variante,
           precioUnitario: c.precioUnitario,
           descripcion: c.nombre
         })),
-        metodoPago: 'efectivo',
+        metodoPago,
         formaPago: 'contado',
         generarReserva: esReserva,
         senia: esReserva ? Math.round(calcularTotal().total * 0.1) : 0
       };
 
       const { data } = await ventaService.crear(payload);
-      
       toast.success(esReserva ? 'Reserva creada!' : 'Venta confirmada!');
       
       if (data.ticket) {
-        try {
-          guardarTicket(data.ticket, config, cliente);
-        } catch { console.error('Error al generar PDF'); }
+        try { guardarTicket(data.ticket, config, cliente); } 
+        catch { console.error('Error al generar PDF'); }
       }
 
       setCarrito([]);
       setCliente(null);
       setBusquedaCliente('');
+      setStep(1);
     } catch (err) {
       toast.error(err.response?.data?.message || 'Error al confirmar');
     } finally {
@@ -187,210 +169,253 @@ const NuevaVenta = () => {
 
   const { subtotal, iva, total } = calcularTotal();
 
+  const steps = [
+    { num: 1, label: 'Productos', icon: 'bag' },
+    { num: 2, label: 'Cliente', icon: 'person' },
+    { num: 3, label: 'Confirmar', icon: 'check-circle' }
+  ];
+
   return (
     <div className="container-fluid py-3">
-      <div className="row g-3">
-        <div className="col-lg-8">
-          <div className="glass-card card">
-            <div className="card-header">
-              <h5 className="mb-0"><i className="bi bi-cart-plus me-2"></i>Buscar Productos</h5>
-            </div>
-            <div className="card-body">
-              <div className="position-relative">
-                <input
-                  type="text"
-                  className="glass-input form-control"
-                  placeholder="Buscar por nombre o SKU..."
-                  value={busquedaProducto}
-                  onChange={e => { setBusquedaProducto(e.target.value); buscarProductos(e.target.value); }}
-                  onBlur={() => setTimeout(() => setMostrarSugerencias(false), 200)}
-                  ref={productoRef}
-                />
-                {mostrarSugerencias && sugerenciasProductos.length > 0 && (
-                  <div className="position-absolute w-100 glass-card" style={{ zIndex: 1000, maxHeight: '300px', overflowY: 'auto' }}>
-                    {sugerenciasProductos.map(p => (
-                      <div
-                        key={p._id}
-                        className="p-2 border-bottom cursor-pointer hover-bg"
-                        onClick={() => agregarProducto(p)}
-                      >
-                        <div className="fw-bold">{p.nombre}</div>
-                        <small className="text-muted">${p.precioVenta} | Stock: {p.variantes?.reduce((s, v) => s + v.stock, 0) || 0}</small>
-                      </div>
-                    ))}
+      <div className="glass-card card mb-3">
+        <div className="card-body py-2">
+          <div className="d-flex justify-content-between align-items-center">
+            {steps.map((s, i) => (
+              <div key={s.num} className="d-flex align-items-center flex-fill">
+                <div className={`d-flex align-items-center justify-content-center rounded-circle ${step >= s.num ? 'bg-success' : 'bg-secondary'} text-white`} style={{ width: '36px', height: '36px' }}>
+                  <i className={`bi bi-${s.icon}-fill`}></i>
+                </div>
+                <span className={`ms-2 d-none d-md-inline ${step >= s.num ? 'fw-bold' : 'text-muted'}`}>{s.label}</span>
+                {i < steps.length - 1 && (
+                  <div className={`flex-fill mx-2 ${step > s.num ? 'bg-success' : 'bg-secondary'}`} style={{ height: '2px', minWidth: '50px' }}></div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {step === 1 && (
+        <div className="row g-3">
+          <div className="col-lg-8">
+            <div className="glass-card card">
+              <div className="card-header d-flex justify-content-between align-items-center">
+                <h5 className="mb-0">Seleccionar Productos</h5>
+                <span className="badge bg-primary">{carrito.length} items</span>
+              </div>
+              <div className="card-body">
+                <div className="position-relative mb-3">
+                  <input
+                    type="text"
+                    className="glass-input form-control"
+                    placeholder="Buscar por nombre o SKU..."
+                    value={busquedaProducto}
+                    onChange={e => { setBusquedaProducto(e.target.value); buscarProductos(e.target.value); }}
+                    onBlur={() => setTimeout(() => setSugerenciasProductos([]), 200)}
+                    ref={productoRef}
+                  />
+                  {sugerenciasProductos.length > 0 && (
+                    <div className="position-absolute w-100 glass-card rounded-bottom" style={{ zIndex: 1000, maxHeight: '300px', overflowY: 'auto' }}>
+                      {sugerenciasProductos.map(p => (
+                        <div key={p._id} className="p-2 border-bottom cursor-pointer hover-bg" onClick={() => agregarProducto(p)}>
+                          <div className="d-flex justify-content-between">
+                            <div>
+                              <div className="fw-bold">{p.nombre}</div>
+                              <small className="text-muted">{p.sku}</small>
+                            </div>
+                            <div className="text-end">
+                              <div className="fw-bold text-success">${p.precioVenta}</div>
+                              <small className="text-muted">Stock: {p.variantes?.reduce((s, v) => s + v.stock, 0) || 0}</small>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {carrito.length === 0 ? (
+                  <div className="text-center py-5 text-muted">
+                    <i className="bi bi-cart-x display-1"></i>
+                    <p className="mt-2">Agrega productos usando el buscador</p>
+                  </div>
+                ) : (
+                  <div className="table-responsive">
+                    <table className="table table-hover">
+                      <thead>
+                        <tr>
+                          <th></th>
+                          <th>Producto</th>
+                          <th className="text-end">Precio</th>
+                          <th className="text-center" style={{ width: '100px' }}>Cant</th>
+                          <th className="text-end">Subtotal</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {carrito.map((item, i) => (
+                          <tr key={i}>
+                            <td><button className="btn btn-sm btn-outline-danger" onClick={() => quitarProducto(i)}><i className="bi bi-x"></i></button></td>
+                            <td>
+                              <div className="fw-bold">{item.nombre}</div>
+                              <small className="text-muted">{item.sku}</small>
+                            </td>
+                            <td className="text-end">${item.precioUnitario.toLocaleString()}</td>
+                            <td className="text-center">
+                              <input type="number" className="form-control form-control-sm text-center" value={item.cantidad} onChange={e => actualizarCantidad(i, parseInt(e.target.value) || 1)} min={1} style={{ width: '70px' }} />
+                            </td>
+                            <td className="text-end fw-bold">${(item.precioUnitario * item.cantidad).toLocaleString()}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 )}
               </div>
             </div>
           </div>
 
-          <div className="glass-card card mt-3">
-            <div className="card-header">
-              <h5 className="mb-0"><i className="bi bi-cart-fill me-2"></i>Carrito ({carrito.length})</h5>
+          <div className="col-lg-4">
+            <div className="glass-card card sticky-top" style={{ top: '70px' }}>
+              <div className="card-header"><h5 className="mb-0">Resumen</h5></div>
+              <div className="card-body">
+                <div className="d-flex justify-content-between mb-2"><span>Subtotal:</span><span>${subtotal.toLocaleString()}</span></div>
+                <div className="d-flex justify-content-between mb-2"><span>IVA (21%):</span><span>${iva.toLocaleString()}</span></div>
+                <hr />
+                <div className="d-flex justify-content-between mb-3">
+                  <strong className="fs-4">TOTAL:</strong>
+                  <strong className="fs-4 text-success">${total.toLocaleString()}</strong>
+                </div>
+                <button className="btn btn-success w-100 btn-lg mb-2" onClick={() => setStep(2)} disabled={carrito.length === 0}>
+                  <i className="bi bi-arrow-right me-2"></i>Continuar
+                </button>
+                <button className="btn btn-outline-secondary w-100" onClick={() => { setCarrito([]); setStep(1); }}>
+                  <i className="bi bi-trash me-2"></i>Limpiar
+                </button>
+              </div>
             </div>
-            <div className="card-body">
-              {carrito.length === 0 ? (
-                <p className="text-center text-muted py-4">Carrito vacío</p>
-              ) : (
+          </div>
+        </div>
+      )}
+
+      {step === 2 && (
+        <div className="row g-3">
+          <div className="col-lg-6">
+            <div className="glass-card card">
+              <div className="card-header"><h5 className="mb-0"><i className="bi bi-person-fill me-2"></i>Datos del Cliente</h5></div>
+              <div className="card-body">
+                <div className="position-relative mb-3">
+                  <input type="text" className="glass-input form-control" placeholder="Buscar cliente..." value={busquedaCliente} onChange={e => { setBusquedaCliente(e.target.value); buscarClientes(e.target.value); }} onBlur={() => setTimeout(() => setSugerenciasClientes([]), 200)} ref={clienteRef} />
+                  {sugerenciasClientes.length > 0 && (
+                    <div className="position-absolute w-100 glass-card rounded-bottom" style={{ zIndex: 1000, maxHeight: '200px', overflowY: 'auto' }}>
+                      {sugerenciasClientes.map(c => <div key={c._id} className="p-2 border-bottom cursor-pointer" onClick={() => seleccionarCliente(c)}><div className="fw-bold">{c.nombre}</div><small className="text-muted">{c.documento}</small></div>)}
+                    </div>
+                  )}
+                </div>
+                <button className="btn btn-outline-info w-100 mb-3" onClick={() => setMostrarNuevoCliente(!mostrarNuevoCliente)}>
+                  <i className="bi bi-plus-circle me-2"></i>Nuevo Cliente
+                </button>
+                {mostrarNuevoCliente && (
+                  <div className="p-3 border rounded">
+                    <input type="text" className="form-control mb-2" placeholder="Nombre *" value={nuevoCliente.nombre} onChange={e => setNuevoCliente({ ...nuevoCliente, nombre: e.target.value })} />
+                    <input type="text" className="form-control mb-2" placeholder="Documento" value={nuevoCliente.documento} onChange={e => setNuevoCliente({ ...nuevoCliente, documento: e.target.value })} />
+                    <input type="text" className="form-control mb-2" placeholder="Teléfono" value={nuevoCliente.telefono} onChange={e => setNuevoCliente({ ...nuevoCliente, telefono: e.target.value })} />
+                    <button className="btn btn-primary w-100" onClick={crearNuevoCliente}>Agregar Cliente</button>
+                  </div>
+                )}
+                {cliente && !mostrarNuevoCliente && (
+                  <div className="mt-3 p-3 border rounded bg-light">
+                    <div className="d-flex align-items-center">
+                      <div className="bg-success rounded-circle p-2 me-3"><i className="bi bi-check-lg text-white"></i></div>
+                      <div>
+                        <div className="fw-bold">{cliente.nombre}</div>
+                        {cliente.documento && <small className="text-muted">{cliente.documento}</small>}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+          <div className="col-lg-6">
+            <div className="glass-card card">
+              <div className="card-header"><h5 className="mb-0">Método de Pago</h5></div>
+              <div className="card-body">
+                <div className="d-grid gap-2">
+                  {[{ value: 'efectivo', label: 'Efectivo', icon: 'cash' }, { value: 'transferencia', label: 'Transferencia', icon: 'bank' }, { value: 'cta_cte', label: 'Cuenta Corriente', icon: 'person-lines-fill' }].map(m => (
+                    <button key={m.value} className={`btn btn-lg d-flex align-items-center p-3 ${metodoPago === m.value ? 'btn-success' : 'btn-outline-secondary'}`} onClick={() => setMetodoPago(m.value)}>
+                      <i className={`bi bi-${m.icon}-fill fs-4 me-3`}></i>
+                      <span className="fs-5">{m.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="mt-3 d-flex gap-2">
+              <button className="btn btn-outline-secondary flex-fill" onClick={() => setStep(1)}>
+                <i className="bi bi-arrow-left me-2"></i>Volver
+              </button>
+              <button className="btn btn-success flex-fill" onClick={() => setStep(3)} disabled={!cliente}>
+                <i className="bi bi-arrow-right me-2"></i>Continuar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {step === 3 && (
+        <div className="row g-3">
+          <div className="col-lg-8">
+            <div className="glass-card card">
+              <div className="card-header"><h5 className="mb-0">Confirmar Venta</h5></div>
+              <div className="card-body">
                 <div className="table-responsive">
-                  <table className="table table-sm">
-                    <thead>
-                      <tr>
-                        <th></th>
-                        <th>Producto</th>
-                        <th>Precio</th>
-                        <th>Cant</th>
-                        <th>Subtotal</th>
-                      </tr>
-                    </thead>
+                  <table className="table">
+                    <thead><tr><th>Cant</th><th>Producto</th><th className="text-end">Precio</th><th className="text-end">Subtotal</th></tr></thead>
                     <tbody>
                       {carrito.map((item, i) => (
-                        <tr key={i}>
-                          <td>
-                            <button className="btn btn-sm btn-danger" onClick={() => quitarProducto(i)}>
-                              <i className="bi bi-x"></i>
-                            </button>
-                          </td>
-                          <td>{item.nombre}</td>
-                          <td>${item.precioUnitario.toLocaleString()}</td>
-                          <td>
-                            <input
-                              type="number"
-                              className="form-control form-control-sm"
-                              style={{ width: '60px' }}
-                              value={item.cantidad}
-                              onChange={e => actualizarCantidad(i, parseInt(e.target.value) || 1)}
-                              min={1}
-                            />
-                          </td>
-                          <td>${(item.precioUnitario * item.cantidad).toLocaleString()}</td>
-                        </tr>
+                        <tr key={i}><td>{item.cantidad}</td><td>{item.nombre}</td><td className="text-end">${item.precioUnitario.toLocaleString()}</td><td className="text-end">${(item.precioUnitario * item.cantidad).toLocaleString()}</td></tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
-              )}
+                <div className="row mt-3">
+                  <div className="col-md-6">
+                    <div className="p-3 border rounded">
+                      <div className="text-muted small">Cliente</div>
+                      <div className="fw-bold">{cliente?.nombre}</div>
+                      {cliente?.documento && <div className="small text-muted">{cliente.documento}</div>}
+                    </div>
+                  </div>
+                  <div className="col-md-6">
+                    <div className="p-3 border rounded">
+                      <div className="text-muted small">Método de Pago</div>
+                      <div className="fw-bold text-capitalize">{metodoPago}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-
-        <div className="col-lg-4">
-          <div className="glass-card card">
-            <div className="card-header">
-              <h5 className="mb-0"><i className="bi bi-person-fill me-2"></i>Cliente</h5>
-            </div>
-            <div className="card-body">
-              <div className="position-relative mb-2">
-                <input
-                  type="text"
-                  className="glass-input form-control"
-                  placeholder="Buscar cliente..."
-                  value={busquedaCliente}
-                  onChange={e => { setBusquedaCliente(e.target.value); buscarClientes(e.target.value); }}
-                  onBlur={() => setTimeout(() => setMostrarSugerenciasCliente(false), 200)}
-                  ref={clienteRef}
-                />
-                {mostrarSugerenciasCliente && sugerenciasClientes.length > 0 && (
-                  <div className="position-absolute w-100 glass-card" style={{ zIndex: 1000, maxHeight: '200px', overflowY: 'auto' }}>
-                    {sugerenciasClientes.map(c => (
-                      <div
-                        key={c._id}
-                        className="p-2 border-bottom cursor-pointer"
-                        onClick={() => seleccionarCliente(c)}
-                      >
-                        <div className="fw-bold">{c.nombre}</div>
-                        <small className="text-muted">{c.documento}</small>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-              <button
-                className="btn btn-sm btn-outline-info w-100"
-                onClick={() => setMostrarNuevoCliente(!mostrarNuevoCliente)}
-              >
-                <i className="bi bi-plus-circle me-1"></i>Nuevo Cliente
-              </button>
-              {mostrarNuevoCliente && (
-                <div className="mt-2 p-2 border rounded">
-                  <input
-                    type="text"
-                    className="form-control mb-2"
-                    placeholder="Nombre *"
-                    value={nuevoCliente.nombre}
-                    onChange={e => setNuevoCliente({ ...nuevoCliente, nombre: e.target.value })}
-                  />
-                  <input
-                    type="text"
-                    className="form-control mb-2"
-                    placeholder="Documento"
-                    value={nuevoCliente.documento}
-                    onChange={e => setNuevoCliente({ ...nuevoCliente, documento: e.target.value })}
-                  />
-                  <input
-                    type="text"
-                    className="form-control mb-2"
-                    placeholder="Teléfono"
-                    value={nuevoCliente.telefono}
-                    onChange={e => setNuevoCliente({ ...nuevoCliente, telefono: e.target.value })}
-                  />
-                  <button className="btn btn-sm btn-primary w-100" onClick={crearNuevoCliente}>
-                    Agregar
+          <div className="col-lg-4">
+            <div className="glass-card card sticky-top" style={{ top: '70px' }}>
+              <div className="card-header bg-success text-white"><h5 className="mb-0">Total a Pagar</h5></div>
+              <div className="card-body text-center">
+                <div className="display-4 fw-bold text-success mb-3">${total.toLocaleString()}</div>
+                <div className="d-grid gap-2">
+                  <button className="btn btn-success btn-lg" onClick={() => confirmarVenta(false)} disabled={loading}>
+                    <i className="bi bi-check-circle me-2"></i>CONFIRMAR VENTA
+                  </button>
+                  <button className="btn btn-info btn-lg" onClick={() => confirmarVenta(true)} disabled={loading}>
+                    <i className="bi bi-calendar-check me-2"></i>RESERVA (10%)
                   </button>
                 </div>
-              )}
-              {cliente && !mostrarNuevoCliente && (
-                <div className="mt-2 p-2 border rounded bg-light">
-                  <strong>{cliente.nombre}</strong>
-                  {cliente.documento && <><br /><small>{cliente.documento}</small></>}
-                  {cliente.telefono && <><br /><small>{cliente.telefono}</small></>}
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="glass-card card mt-3">
-            <div className="card-header">
-              <h5 className="mb-0">Resumen</h5>
-            </div>
-            <div className="card-body">
-              <div className="d-flex justify-content-between mb-2">
-                <span>Subtotal:</span>
-                <span>${subtotal.toLocaleString()}</span>
+                <small className="text-muted d-block mt-2">La reserva dura 5 días con seña del 10%</small>
+                <button className="btn btn-link w-100 mt-2" onClick={() => setStep(2)}>Cambiar datos</button>
               </div>
-              <div className="d-flex justify-content-between mb-2">
-                <span>IVA (21%):</span>
-                <span>${iva.toLocaleString()}</span>
-              </div>
-              <hr />
-              <div className="d-flex justify-content-between mb-3">
-                <strong className="fs-5">TOTAL:</strong>
-                <strong className="fs-5 text-success">${total.toLocaleString()}</strong>
-              </div>
-              
-              <div className="d-grid gap-2">
-                <button
-                  className="btn btn-success btn-lg"
-                  onClick={() => confirmarVenta(false)}
-                  disabled={loading || carrito.length === 0}
-                >
-                  <i className="bi bi-check-circle me-2"></i>CONFIRMAR VENTA
-                </button>
-                <button
-                  className="btn btn-info btn-lg"
-                  onClick={() => confirmarVenta(true)}
-                  disabled={loading || carrito.length === 0}
-                >
-                  <i className="bi bi-calendar-check me-2"></i>RESERVA (10% seña)
-                </button>
-              </div>
-              <small className="text-muted d-block text-center mt-2">
-                La reserva dura 5 días
-              </small>
             </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
