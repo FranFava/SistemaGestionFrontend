@@ -15,7 +15,7 @@ const NuevaVenta = () => {
   const [loading, setLoading] = useState(false);
   const [config, setConfig] = useState(null);
   const [mostrarNuevoCliente, setMostrarNuevoCliente] = useState(false);
-  const [nuevoCliente, setNuevoCliente] = useState({ nombre: '', documento: '', telefono: '' });
+  const [nuevoCliente, setNuevoCliente] = useState({ nombre: '', apellido: '', telefono: '', instagram: '', email: '' });
   const [metodoPago, setMetodoPago] = useState('efectivo');
 
   const productoRef = useRef(null);
@@ -316,10 +316,24 @@ const NuevaVenta = () => {
                 </button>
                 {mostrarNuevoCliente && (
                   <div className="p-3 border rounded">
-                    <input type="text" className="form-control mb-2" placeholder="Nombre *" value={nuevoCliente.nombre} onChange={e => setNuevoCliente({ ...nuevoCliente, nombre: e.target.value })} />
-                    <input type="text" className="form-control mb-2" placeholder="Documento" value={nuevoCliente.documento} onChange={e => setNuevoCliente({ ...nuevoCliente, documento: e.target.value })} />
-                    <input type="text" className="form-control mb-2" placeholder="Teléfono" value={nuevoCliente.telefono} onChange={e => setNuevoCliente({ ...nuevoCliente, telefono: e.target.value })} />
-                    <button className="btn btn-primary w-100" onClick={crearNuevoCliente}>Agregar Cliente</button>
+                    <div className="row g-2">
+                      <div className="col-6">
+                        <input type="text" className="form-control" placeholder="Nombre *" value={nuevoCliente.nombre} onChange={e => setNuevoCliente({ ...nuevoCliente, nombre: e.target.value })} />
+                      </div>
+                      <div className="col-6">
+                        <input type="text" className="form-control" placeholder="Apellido" value={nuevoCliente.apellido} onChange={e => setNuevoCliente({ ...nuevoCliente, apellido: e.target.value })} />
+                      </div>
+                      <div className="col-6">
+                        <input type="text" className="form-control" placeholder="@Instagram" value={nuevoCliente.instagram} onChange={e => setNuevoCliente({ ...nuevoCliente, instagram: e.target.value })} />
+                      </div>
+                      <div className="col-6">
+                        <input type="text" className="form-control" placeholder="Celular" value={nuevoCliente.telefono} onChange={e => setNuevoCliente({ ...nuevoCliente, telefono: e.target.value })} />
+                      </div>
+                      <div className="col-12">
+                        <input type="email" className="form-control" placeholder="Email (opcional)" value={nuevoCliente.email || ''} onChange={e => setNuevoCliente({ ...nuevoCliente, email: e.target.value })} />
+                      </div>
+                    </div>
+                    <button className="btn btn-primary w-100 mt-2" onClick={crearNuevoCliente}>Agregar Cliente</button>
                   </div>
                 )}
                 {cliente && !mostrarNuevoCliente && (
@@ -327,8 +341,9 @@ const NuevaVenta = () => {
                     <div className="d-flex align-items-center">
                       <div className="bg-success rounded-circle p-2 me-3"><i className="bi bi-check-lg text-white"></i></div>
                       <div>
-                        <div className="fw-bold">{cliente.nombre}</div>
-                        {cliente.documento && <small className="text-muted">{cliente.documento}</small>}
+                        <div className="fw-bold">{cliente.nombre} {cliente.apellido}</div>
+                        {cliente.instagram && <small className="text-muted d-block">@{cliente.instagram}</small>}
+                        {cliente.telefono && <small className="text-muted d-block">{cliente.telefono}</small>}
                       </div>
                     </div>
                   </div>
