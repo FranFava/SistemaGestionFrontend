@@ -2,11 +2,14 @@
  * ============================================
  * Login Page - Página de Autenticación
  * Sistema Francisco
- *Aplicando SOLID
+ * Aplicando SOLID
  * ============================================
  */
 
+// React/core
 import { useEffect } from 'react'
+
+// Custom hooks
 import useLogin from '../hooks/useLogin'
 
 /**

@@ -66,7 +66,8 @@ api.interceptors.response.use(
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       
-      if (!window.location.pathname.includes('/login')) {
+      const isLoginPage = window.location.pathname === '/login';
+      if (!isLoginPage) {
         window.location.href = '/login';
       }
     }
