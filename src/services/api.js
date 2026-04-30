@@ -1,8 +1,6 @@
 import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL;
-const MAX_RETRIES = 3;
-const RETRY_DELAY = 1000;
 
 const api = axios.create({
   baseURL: API_URL,
@@ -38,27 +36,21 @@ api.interceptors.response.use(
     const isConnectionError = 
       error.code === 'ECONNREFUSED' || 
       error.code === 'ETIMEDOUT' ||
+      error.code === 'ERR_NETWORK' ||
       error.message.includes('Network Error') ||
       error.message.includes('Connection refused');
     
     if (isConnectionError && !originalRequest._retry) {
       originalRequest._retry = true;
       
-      console.log(`[API] Error de conexión detectado. Reintentando...`);
+      console.log(`[API] Error de conexión. Reintentando en 2s...`);
+      await new Promise(r => setTimeout(r, 2000));
       
-      for (let i = 1; i <= MAX_RETRIES; i++) {
-        console.log(`[API] Reintento ${i}/${MAX_RETRIES}...`);
-        await new Promise(r => setTimeout(r, RETRY_DELAY * i));
-        
-        try {
-          const response = await axios(originalRequest);
-          console.log(`[API] Reintento ${i} exitoso!`);
-          return response;
-        } catch (retryError) {
-          if (i === MAX_RETRIES) {
-            console.error('[API] Todos los reintentos fallaron');
-          }
-        }
+      try {
+        const response = await axios(originalRequest);
+        return response;
+      } catch (retryError) {
+        console.error('[API] Reintento fallido');
       }
     }
     
