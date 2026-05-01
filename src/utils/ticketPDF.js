@@ -8,7 +8,7 @@ import autoTable from 'jspdf-autotable';
  * @param {Object} [cliente] - Optional client data
  * @returns {jsPDF} PDF document instance
  */
-export const generarTicketPDF = (ticket, empresa, cliente) => {
+export const generarTicketPDF = (ticket, empresa) => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
   const margin = 15;

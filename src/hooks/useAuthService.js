@@ -46,7 +46,7 @@ function useAuthService(options = {}) {
         localStorage.removeItem('token')
         localStorage.removeItem('user')
       }
-    } catch (err) {
+    } catch {
       if (storedUser) {
         try {
           const userObj = JSON.parse(storedUser)

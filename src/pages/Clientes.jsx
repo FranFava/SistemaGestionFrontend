@@ -18,8 +18,6 @@ const Clientes = () => {
   const [itemsPerPage] = useState(10);
   const [form, setForm] = useState({ nombre: '', rut: '', telefono: '', email: '', direccion: '' });
 
-  useEffect(() => { fetchClientes(); }, []);
-
   /**
    * Carga todos los clientes desde la API
    */
@@ -27,10 +25,16 @@ const Clientes = () => {
     try {
       const { data } = await clienteService.getAll();
       setClientes(data);
-    } catch (err) {
+    } catch {
       toast.error('Error al cargar clientes');
     }
   };
+
+  useEffect(() => {
+    clienteService.getAll()
+      .then(({ data }) => setClientes(data))
+      .catch(() => toast.error('Error al cargar clientes'));
+  }, []);
 
   /**
    * Envía el formulario para crear o actualizar un cliente
@@ -71,7 +75,7 @@ const Clientes = () => {
         await clienteService.delete(id);
         toast.success('Cliente eliminado');
         fetchClientes();
-      } catch (err) {
+      } catch {
         toast.error('Error al eliminar');
       }
     }

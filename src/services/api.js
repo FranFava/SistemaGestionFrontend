@@ -59,7 +59,7 @@ api.interceptors.response.use(
       try {
         const response = await axios(originalRequest);
         return response;
-      } catch (retryError) {
+      } catch {
         console.error('[API] Reintento fallido');
       }
     }

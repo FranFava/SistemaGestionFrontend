@@ -26,8 +26,6 @@ const Productos = () => {
   });
   const [variantForm, setVariantForm] = useState({ color: '', capacidad: '', stock: '' });
 
-  useEffect(() => { fetchProductos(); }, []);
-
   /**
    * Carga todos los productos desde la API
    */
@@ -35,10 +33,16 @@ const Productos = () => {
     try {
       const { data } = await productoService.getAll();
       setProductos(data);
-    } catch (err) {
+    } catch {
       toast.error('Error al cargar productos');
     }
   };
+
+  useEffect(() => {
+    productoService.getAll()
+      .then(({ data }) => setProductos(data))
+      .catch(() => toast.error('Error al cargar productos'));
+  }, []);
 
   /**
    * Verifica si un SKU ya existe en el sistema
@@ -116,7 +120,7 @@ const Productos = () => {
         await productoService.delete(id);
         toast.success('Producto eliminado');
         fetchProductos();
-      } catch (err) {
+      } catch {
         toast.error('Error al eliminar');
       }
     }

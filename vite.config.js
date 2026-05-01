@@ -1,3 +1,4 @@
+/* global process */
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
@@ -13,10 +14,10 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
         timeout: 30000,
-        onProxyReq: (proxyReq, req, res) => {
+        onProxyReq: (proxyReq, req) => {
           console.log(`[Proxy] ${req.method} ${req.url} -> ${proxyReq.path}`);
         },
-        onError: (err, req, res) => {
+        onError: (err, req) => {
           console.error('═══════════════════════════════════════════');
           console.error('❌ ERROR DE CONEXIÓN AL BACKEND');
           console.error('URL solicitada:', req.url);
@@ -24,7 +25,7 @@ export default defineConfig({
           console.error('Error:', err.message);
           console.error('═══════════════════════════════════════════');
         },
-        onProxyRes: (proxyRes, req, res) => {
+        onProxyRes: (proxyRes, req) => {
           if (proxyRes.statusCode >= 500) {
             console.error(`[Proxy] Error ${proxyRes.statusCode} en ${req.url}`);
           }

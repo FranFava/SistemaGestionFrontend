@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { productoService, clienteService, ventaService, configService } from '../services/api';
+import { productoService, ventaService, configService } from '../services/api';
 import { toast, confirm } from '../components/Swal';
 import { guardarTicket } from '../utils/ticketPDF';
 
@@ -43,7 +43,9 @@ const NuevaVenta = () => {
     try {
       const { data } = await configService.get();
       setConfig(data);
-    } catch {}
+    } catch {
+      console.error('Error al cargar configuración');
+    }
   };
 
   /**
@@ -74,7 +76,9 @@ const NuevaVenta = () => {
     try {
       const { data } = await ventaService.buscarCliente(texto);
       setSugerenciasClientes(data);
-    } catch {}
+    } catch {
+      console.error('Error al buscar clientes');
+    }
   };
 
   /**

@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useEffect } from 'react';
 import { cajaService } from '../services/api';
 
@@ -55,7 +56,7 @@ export const DollarProvider = ({ children }) => {
       } else {
         setError('Sin datos de cotización');
       }
-    } catch (err) {
+    } catch {
       setError('No se pudo obtener cotización');
     } finally {
       setLoading(false);
@@ -72,14 +73,10 @@ export const DollarProvider = ({ children }) => {
    * @returns {Promise<boolean>} true si la actualización fue exitosa
    */
   const updateCotizacion = async (nuevoValor) => {
-    try {
-      await cajaService.updateCotizacion(nuevoValor);
-      setCotizacionDolar(nuevoValor);
-      localStorage.setItem('cotizacionDolar', nuevoValor.toString());
-      return true;
-    } catch (err) {
-      throw err;
-    }
+    await cajaService.updateCotizacion(nuevoValor);
+    setCotizacionDolar(nuevoValor);
+    localStorage.setItem('cotizacionDolar', nuevoValor.toString());
+    return true;
   };
 
   return (

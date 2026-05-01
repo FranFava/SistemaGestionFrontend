@@ -47,18 +47,6 @@ const Usuarios = () => {
   });
 
   // ============================================
-  // Efectos - Efectos secundarios
-  // ============================================
-
-  /**
-   * Efecto: Cargar usuarios
-   * @description Obtiene la lista de usuarios al montar el componente
-   */
-  useEffect(() => { 
-    fetchUsuarios(); 
-  }, []);
-
-  // ============================================
   // Funciones de Fetch - Obtención de datos
   // ============================================
 
@@ -74,6 +62,20 @@ const Usuarios = () => {
       toast.error('Error al cargar usuarios');
     }
   };
+
+  // ============================================
+  // Efectos - Efectos secundarios
+  // ============================================
+
+  /**
+   * Efecto: Cargar usuarios
+   * @description Obtiene la lista de usuarios al montar el componente
+   */
+  useEffect(() => {
+    usuarioService.getAll()
+      .then(({ data }) => setUsuarios(data))
+      .catch(() => toast.error('Error al cargar usuarios'));
+  }, []);
 
   // ============================================
   // Handlers - Funciones manejadoras

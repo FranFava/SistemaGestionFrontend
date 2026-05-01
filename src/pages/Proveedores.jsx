@@ -18,8 +18,6 @@ const Proveedores = () => {
   const [itemsPerPage] = useState(10);
   const [form, setForm] = useState({ nombre: '', rut: '', telefono: '', email: '', direccion: '', contacto: '' });
 
-  useEffect(() => { fetchProveedores(); }, []);
-
   /**
    * Carga todos los proveedores desde la API
    */
@@ -27,10 +25,16 @@ const Proveedores = () => {
     try {
       const { data } = await proveedorService.getAll();
       setProveedores(data);
-    } catch (err) {
+    } catch {
       toast.error('Error al cargar proveedores');
     }
   };
+
+  useEffect(() => {
+    proveedorService.getAll()
+      .then(({ data }) => setProveedores(data))
+      .catch(() => toast.error('Error al cargar proveedores'));
+  }, []);
 
   /**
    * Envía el formulario para crear o actualizar un proveedor
@@ -71,7 +75,7 @@ const Proveedores = () => {
         await proveedorService.delete(id);
         toast.success('Proveedor eliminado');
         fetchProveedores();
-      } catch (err) {
+      } catch {
         toast.error('Error al eliminar');
       }
     }

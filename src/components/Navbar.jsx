@@ -40,7 +40,9 @@ const Navbar = () => {
   const location = useLocation();
   
   // Nombre de la tienda (desde localStorage)
-  const [nombreTienda, setNombreTienda] = useState('Stock Nextech');
+  const [nombreTienda] = useState(() => {
+    return localStorage.getItem('nombreTienda') || 'Stock Nextech';
+  });
   
   // Contador de alertas de stock
   const [alertasCount, setAlertasCount] = useState(0);
@@ -48,15 +50,6 @@ const Navbar = () => {
   // ============================================
   // Efectos - Efectos secundarios
   // ============================================
-
-  /**
-   * Efecto: Cargar nombre de tienda
-   * @description Recupera el nombre de la tienda desde localStorage al iniciar
-   */
-  useEffect(() => {
-    const stored = localStorage.getItem('nombreTienda');
-    if (stored) setNombreTienda(stored);
-  }, []);
 
   /**
    * Efecto: Fetch de alertas

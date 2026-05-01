@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { movimientoService, productoService, ppConfigService } from '../services/api';
+import { movimientoService, productoService } from '../services/api';
 import { toast, confirm } from '../components/Swal';
 import Pagination from '../components/Pagination';
 import { exportMovimientosExcel, exportToPDF } from '../utils/exportUtils';
@@ -723,7 +723,6 @@ const Movimientos = () => {
                                     type="button"
                                     className={`btn ${form.reserva?.porcentajeSenia === pct ? 'btn-info' : 'btn-outline-info'} flex-fill`}
                                     onClick={() => {
-                                      const dias = pct === 5 ? 2 : pct === 10 ? 5 : 7;
                                       setForm({
                                         ...form,
                                         reserva: {

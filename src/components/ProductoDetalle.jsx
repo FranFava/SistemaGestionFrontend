@@ -37,26 +37,11 @@ const ProductoDetalle = ({ producto, onClose }) => {
    */
   useEffect(() => {
     if (producto._id) {
-      fetchMovimientos();
+      movimientoService.getByProducto(producto._id)
+        .then(({ data }) => setMovimientos(data))
+        .catch(() => console.error('Error al cargar movimientos'));
     }
   }, [producto._id]);
-
-  // ============================================
-  // Funciones de Fetch - Obtención de datos
-  // ============================================
-
-  /**
-   * Fetch de movimientos
-   * @description Obtiene el historial de movimientos del producto
-   */
-  const fetchMovimientos = async () => {
-    try {
-      const { data } = await movimientoService.getByProducto(producto._id);
-      setMovimientos(data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
 
   // ============================================
   // Utilidades - Cálculos

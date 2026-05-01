@@ -13,8 +13,6 @@ const PPConfig = () => {
   const [ppForm, setPPForm] = useState({ modelo: '', capacidad: '', condicion: 'standard', valor: '', descripcion: '' });
   const [editingPPId, setEditingPPId] = useState(null);
 
-  useEffect(() => { fetchPPConfigs(); }, []);
-
   /**
    * Carga todas las configuraciones PP desde la API
    */
@@ -22,10 +20,16 @@ const PPConfig = () => {
     try {
       const { data } = await ppConfigService.getAll();
       setPPConfigs(data);
-    } catch (err) {
+    } catch {
       console.error('Error al cargar configs PP');
     }
   };
+
+  useEffect(() => {
+    ppConfigService.getAll()
+      .then(({ data }) => setPPConfigs(data))
+      .catch(() => console.error('Error al cargar configs PP'));
+  }, []);
 
   /**
    * Envía el formulario para crear o actualizar una configuración PP
