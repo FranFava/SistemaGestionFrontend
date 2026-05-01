@@ -20,8 +20,8 @@ function useAuthService(options = {}) {
   const [error, setError] = useState(null)
 
   const initializeAuth = useCallback(async () => {
-    const token = localStorage.getItem('token')
-    const storedUser = localStorage.getItem('user')
+    const token = sessionStorage.getItem('token')
+    const storedUser = sessionStorage.getItem('user')
     
     if (!token) {
       setLoading(false)
@@ -33,18 +33,18 @@ function useAuthService(options = {}) {
         const userObj = JSON.parse(storedUser)
         setUser(userObj)
       } catch {
-        localStorage.removeItem('user')
+        sessionStorage.removeItem('user')
       }
     }
 
     try {
       const { data } = await authService.validate()
       if (data.usuario) {
-        localStorage.setItem('user', JSON.stringify(data.usuario))
+        sessionStorage.setItem('user', JSON.stringify(data.usuario))
         setUser(data.usuario)
       } else if (!storedUser) {
-        localStorage.removeItem('token')
-        localStorage.removeItem('user')
+        sessionStorage.removeItem('token')
+        sessionStorage.removeItem('user')
       }
     } catch {
       if (storedUser) {
@@ -52,12 +52,12 @@ function useAuthService(options = {}) {
           const userObj = JSON.parse(storedUser)
           setUser(userObj)
         } catch {
-          localStorage.removeItem('token')
-          localStorage.removeItem('user')
+          sessionStorage.removeItem('token')
+          sessionStorage.removeItem('user')
         }
       } else {
-        localStorage.removeItem('token')
-        localStorage.removeItem('user')
+        sessionStorage.removeItem('token')
+        sessionStorage.removeItem('user')
       }
     } finally {
       setLoading(false)
@@ -69,8 +69,8 @@ function useAuthService(options = {}) {
     try {
       const { data } = await authService.login(username, password)
       if (data.token && data.usuario) {
-        localStorage.setItem('token', data.token)
-        localStorage.setItem('user', JSON.stringify(data.usuario))
+        sessionStorage.setItem('token', data.token)
+        sessionStorage.setItem('user', JSON.stringify(data.usuario))
         setUser(data.usuario)
         return data
       }
@@ -83,8 +83,8 @@ function useAuthService(options = {}) {
   }, [])
 
   const logout = useCallback(() => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
+    sessionStorage.removeItem('token')
+    sessionStorage.removeItem('user')
     setUser(null)
     if (options.onLogout) {
       options.onLogout()

@@ -27,10 +27,7 @@ export const useDollar = () => {
  * @returns {JSX.Element}
  */
 export const DollarProvider = ({ children }) => {
-  const [cotizacionDolar, setCotizacionDolar] = useState(() => {
-    const saved = localStorage.getItem('cotizacionDolar');
-    return saved ? Number(saved) : null;
-  });
+  const [cotizacionDolar, setCotizacionDolar] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -39,7 +36,7 @@ export const DollarProvider = ({ children }) => {
    * Solo ejecuta la petición si hay un token de autenticación
    */
   const fetchCotizacion = async () => {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     if (!token) {
       setLoading(false);
       return;
@@ -52,7 +49,6 @@ export const DollarProvider = ({ children }) => {
         const newValue = Number(data.cotizacionDolar);
         setCotizacionDolar(newValue);
         setError(null);
-        localStorage.setItem('cotizacionDolar', newValue.toString());
       } else {
         setError('Sin datos de cotización');
       }
@@ -75,7 +71,6 @@ export const DollarProvider = ({ children }) => {
   const updateCotizacion = async (nuevoValor) => {
     await cajaService.updateCotizacion(nuevoValor);
     setCotizacionDolar(nuevoValor);
-    localStorage.setItem('cotizacionDolar', nuevoValor.toString());
     return true;
   };
 

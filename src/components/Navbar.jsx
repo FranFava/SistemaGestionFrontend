@@ -39,10 +39,8 @@ const Navbar = () => {
   // Hook de ubicación actual (react-router)
   const location = useLocation();
   
-  // Nombre de la tienda (desde localStorage)
-  const [nombreTienda] = useState(() => {
-    return localStorage.getItem('nombreTienda') || 'Stock Nextech';
-  });
+  // Nombre de la tienda
+  const nombreTienda = 'Nextech';
   
   // Contador de alertas de stock
   const [alertasCount, setAlertasCount] = useState(0);

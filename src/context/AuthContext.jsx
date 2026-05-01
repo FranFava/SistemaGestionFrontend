@@ -19,8 +19,8 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const initializeAuth = async () => {
-      const token = localStorage.getItem('token');
-      const storedUser = localStorage.getItem('user');
+      const token = sessionStorage.getItem('token');
+      const storedUser = sessionStorage.getItem('user');
       
       if (!token) {
         setLoading(false);
@@ -32,24 +32,24 @@ export const AuthProvider = ({ children }) => {
           const userObj = JSON.parse(storedUser);
           setUser(userObj);
         } catch {
-          localStorage.removeItem('user');
+          sessionStorage.removeItem('user');
         }
       }
 
       try {
         const { data } = await authService.validate();
         if (data.usuario) {
-          localStorage.setItem('user', JSON.stringify(data.usuario));
+          sessionStorage.setItem('user', JSON.stringify(data.usuario));
           setUser(data.usuario);
         } else {
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
+          sessionStorage.removeItem('token');
+          sessionStorage.removeItem('user');
           setUser(null);
         }
       } catch (error) {
         console.error('Error validando token:', error);
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('user');
         setUser(null);
       } finally {
         setLoading(false);
@@ -69,8 +69,8 @@ export const AuthProvider = ({ children }) => {
     const { data } = await authService.login(username, password);
     
     if (data.token && data.usuario) {
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.usuario));
+      sessionStorage.setItem('token', data.token);
+      sessionStorage.setItem('user', JSON.stringify(data.usuario));
       setUser(data.usuario);
       return data;
     } else {
@@ -83,8 +83,8 @@ export const AuthProvider = ({ children }) => {
    * @returns {void}
    */
   const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('user');
     setUser(null);
   };
 
