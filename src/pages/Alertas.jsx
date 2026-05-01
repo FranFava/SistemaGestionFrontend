@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { alertaService } from '../services/api';
 import { toast } from '../components/Swal';
@@ -16,14 +16,10 @@ const Alertas = () => {
   const [alertasDescartadas, setAlertasDescartadas] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchAlertas();
-  }, [activeTab]);
-
   /**
    * Carga las alertas según la pestaña activa (activas o descartadas)
    */
-  const fetchAlertas = async () => {
+  const fetchAlertas = useCallback(async () => {
     setLoading(true);
     try {
       if (activeTab === 'activas') {
@@ -38,7 +34,11 @@ const Alertas = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [activeTab]);
+
+  useEffect(() => {
+    fetchAlertas();
+  }, [fetchAlertas]);
 
   /**
    * Descarta una alerta de stock bajo

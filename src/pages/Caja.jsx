@@ -7,7 +7,7 @@
  */
 
 // React - Hooks
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 // Servicios - API de caja
 import { cajaService } from '../services/api';
@@ -115,32 +115,10 @@ const Caja = () => {
   // ============================================
 
   /**
-   * Fetch de movimientos
-   * @description Obtiene los movimientos de caja con los filtros aplicados
-   */
-  const fetchMovimientos = async () => {
-    try {
-      const params = {};
-      if (filters.fechaInicio) params.fechaInicio = filters.fechaInicio;
-      if (filters.fechaFin) params.fechaFin = filters.fechaFin;
-      if (filters.tipo) params.tipo = filters.tipo;
-      if (filters.metodoPago) params.metodoPago = filters.metodoPago;
-      if (filters.moneda) params.moneda = filters.moneda;
-
-      const response = await cajaService.getAll(params);
-      const data = response.data?.data || response.data || [];
-      setMovimientos(Array.isArray(data) ? data : []);
-    } catch {
-      setMovimientos([]);
-      toast.error('Error al cargar movimientos de caja');
-    }
-  };
-
-  /**
    * Fetch de saldos
    * @description Obtiene los saldos actuales de caja desde el servidor
    */
-  const fetchSaldos = async () => {
+  const fetchSaldos = useCallback(async () => {
     try {
       const response = await cajaService.getSaldos();
       const data = response.data?.data || response.data || {};
@@ -157,7 +135,29 @@ const Caja = () => {
     } catch {
       toast.error('Error al cargar saldos');
     }
-  };
+  }, []);
+
+  /**
+   * Fetch de movimientos
+   * @description Obtiene los movimientos de caja con los filtros aplicados
+   */
+  const fetchMovimientos = useCallback(async () => {
+    try {
+      const params = {};
+      if (filters.fechaInicio) params.fechaInicio = filters.fechaInicio;
+      if (filters.fechaFin) params.fechaFin = filters.fechaFin;
+      if (filters.tipo) params.tipo = filters.tipo;
+      if (filters.metodoPago) params.metodoPago = filters.metodoPago;
+      if (filters.moneda) params.moneda = filters.moneda;
+
+      const response = await cajaService.getAll(params);
+      const data = response.data?.data || response.data || [];
+      setMovimientos(Array.isArray(data) ? data : []);
+    } catch {
+      setMovimientos([]);
+      toast.error('Error al cargar movimientos de caja');
+    }
+  }, [filters]);
 
   // ============================================
   // Efectos - Efectos secundarios
@@ -170,7 +170,7 @@ const Caja = () => {
   useEffect(() => {
     fetchMovimientos();
     fetchSaldos();
-  }, []);
+  }, [fetchMovimientos, fetchSaldos]);
 
   /**
    * Efecto: Actualizar cotización

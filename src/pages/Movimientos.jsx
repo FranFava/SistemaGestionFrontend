@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { movimientoService, productoService } from '../services/api';
 import { toast, confirm } from '../components/Swal';
@@ -57,7 +57,7 @@ const Movimientos = () => {
   /**
    * @description Fetches movements from API, optionally filtered by date range, type, or product
    */
-  const fetchMovimientos = async () => {
+  const fetchMovimientos = useCallback(async () => {
     try {
       const params = {};
       if (filters.fechaInicio) params.fechaInicio = filters.fechaInicio;
@@ -70,24 +70,24 @@ const Movimientos = () => {
     } catch {
       toast.error('Error al cargar movimientos');
     }
-  };
+  }, [filters]);
 
   /**
    * @description Fetches all products for the product search dropdown
    */
-  const fetchProductos = async () => {
+  const fetchProductos = useCallback(async () => {
     try {
       const { data } = await productoService.getAll();
       setProductos(data);
     } catch {
       console.error('Error al cargar productos');
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchMovimientos();
     fetchProductos();
-  }, []);
+  }, [fetchMovimientos, fetchProductos]);
 
   useEffect(() => {
     if (location.state?.producto && productos.length > 0) {
@@ -120,7 +120,7 @@ const Movimientos = () => {
         navigate(location.pathname, { replace: true });
       }
     }
-  }, [location.state, productos]);
+  }, [location.state, productos, location.pathname, navigate]);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
