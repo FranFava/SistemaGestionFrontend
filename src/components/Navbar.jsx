@@ -130,7 +130,7 @@ const Navbar = () => {
             {user && navItems.map(item => (
               <li className="nav-item" key={item.path}>
                 <Link 
-                  className={`nav-link ${location.pathname === item.path ? 'active fw-bold' : ''} ${item.primary ? 'btn btn-success btn-sm ms-2' : ''}`}
+                  className={`nav-link ${location.pathname === item.path ? 'active' : ''} ${item.primary ? 'nav-cta' : ''}`}
                   to={item.path}
                 >
                   <i className={`bi bi-${item.icon}${item.primary ? '' : '-fill'} me-1`}></i>
@@ -143,7 +143,7 @@ const Navbar = () => {
             {user?.rol === 'admin' && adminItems.map(item => (
               <li className="nav-item" key={item.path}>
                 <Link 
-                  className={`nav-link ${location.pathname === item.path ? 'active fw-bold' : ''}`}
+                  className={`nav-link ${location.pathname === item.path ? 'active' : ''}`}
                   to={item.path}
                 >
                   <i className={`bi bi-${item.icon}-fill me-1`}></i>
@@ -159,15 +159,15 @@ const Navbar = () => {
             
             {/* Controls de usuario - visibles en desktop */}
             <li className="nav-item d-none d-lg-block">
-              <span className="nav-link d-flex align-items-center">
-                <span className="glass-badge me-3">
-                  <i className="bi bi-currency-dollar me-1"></i>
+              <div className="navbar-user-section">
+                <span className="dollar-badge">
+                  <i className="bi bi-currency-dollar"></i>
                   USD: {Number(cotizacionDolar).toLocaleString('es-AR')} ARS
                 </span>
                 {alertasCount > 0 && (
                   <Link 
                     to="/alertas" 
-                    className="btn btn-outline-danger btn-sm me-3 position-relative"
+                    className="navbar-alerts-btn position-relative"
                   >
                     <i className="bi bi-bell-fill"></i>
                     <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
@@ -175,8 +175,9 @@ const Navbar = () => {
                     </span>
                   </Link>
                 )}
-                <span className="me-3">
-                  <i className="bi bi-person-circle me-1"></i>
+                <div className="navbar-divider"></div>
+                <span className="navbar-user-name">
+                  <i className="bi bi-person-circle"></i>
                   {user.nombre || user.username}
                 </span>
                 <button 
@@ -186,28 +187,28 @@ const Navbar = () => {
                   <i className="bi bi-box-arrow-right me-1"></i>
                   <span className="d-none d-xl-inline">Cerrar Sesión</span>
                 </button>
-              </span>
+              </div>
             </li>
           </ul>
           
           {/* Controls de usuario para móvil - dentro del menú */}
-          <div className="d-lg-none pb-2">
+          <div className="d-lg-none mobile-section">
             <div className="d-flex flex-column gap-2">
-              <div className="glass-badge px-3 py-2 mx-3">
+              <div className="dollar-badge px-3 py-2 mx-3">
                 <i className="bi bi-currency-dollar me-2"></i>
                 USD: {Number(cotizacionDolar).toLocaleString('es-AR')} ARS
               </div>
               {alertasCount > 0 && (
                 <Link 
                   to="/alertas" 
-                  className="btn btn-outline-danger btn-sm mx-3"
+                  className="navbar-alerts-btn mx-3"
                 >
                   <i className="bi bi-bell-fill me-2"></i>
                   Alertas
                   <span className="badge bg-danger ms-2">{alertasCount}</span>
                 </Link>
               )}
-              <div className="text-white px-3 py-2 mx-3">
+              <div className="navbar-user-name px-3 py-2 mx-3">
                 <i className="bi bi-person-circle me-2"></i>
                 {user.nombre || user.username}
               </div>
