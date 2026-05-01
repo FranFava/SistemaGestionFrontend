@@ -26,6 +26,9 @@ const NuevaVenta = () => {
     fetchConfig();
   }, []);
 
+  /**
+   * @description Fetches all active products from the API
+   */
   const fetchProductos = async () => {
     try {
       const { data } = await productoService.getAll();
@@ -33,6 +36,9 @@ const NuevaVenta = () => {
     } catch { toast.error('Error al cargar productos'); }
   };
 
+  /**
+   * @description Fetches system configuration (company info, etc.)
+   */
   const fetchConfig = async () => {
     try {
       const { data } = await configService.get();
@@ -40,6 +46,10 @@ const NuevaVenta = () => {
     } catch {}
   };
 
+  /**
+   * @description Filters products locally by name or SKU for the search dropdown
+   * @param {string} texto - Search text entered by user
+   */
   const buscarProductos = (texto) => {
     if (!texto) {
       setSugerenciasProductos([]);
@@ -52,6 +62,10 @@ const NuevaVenta = () => {
     setSugerenciasProductos(filtrados);
   };
 
+  /**
+   * @description Searches for clients via the API by name or document
+   * @param {string} texto - Search text (minimum 2 characters)
+   */
   const buscarClientes = async (texto) => {
     if (!texto || texto.length < 2) {
       setSugerenciasClientes([]);
@@ -63,6 +77,10 @@ const NuevaVenta = () => {
     } catch {}
   };
 
+  /**
+   * @description Adds a product to the cart or increments its quantity if already present, checking stock availability
+   * @param {Object} producto - Product object to add
+   */
   const agregarProducto = (producto) => {
     const existente = carrito.find(c => c.productoId === producto._id);
     
@@ -91,21 +109,37 @@ const NuevaVenta = () => {
     setSugerenciasProductos([]);
   };
 
+  /**
+   * @description Removes a product from the cart by index
+   * @param {number} index - Index of the cart item to remove
+   */
   const quitarProducto = (index) => {
     setCarrito(carrito.filter((_, i) => i !== index));
   };
 
+  /**
+   * @description Updates the quantity of a cart item
+   * @param {number} index - Index of the cart item
+   * @param {number} nuevaCantidad - New quantity (minimum 1)
+   */
   const actualizarCantidad = (index, nuevaCantidad) => {
     if (nuevaCantidad < 1) return;
     setCarrito(carrito.map((c, i) => i === index ? { ...c, cantidad: nuevaCantidad } : c));
   };
 
+  /**
+   * @description Selects a client from search results and populates the client field
+   * @param {Object} c - Client object from search results
+   */
   const seleccionarCliente = (c) => {
     setCliente(c);
     setBusquedaCliente(c.nombre);
     setSugerenciasClientes([]);
   };
 
+  /**
+   * @description Creates a temporary client object from the new client form (client will be created on sale confirmation)
+   */
   const crearNuevoCliente = () => {
     if (!nuevoCliente.nombre) {
       toast.warning('Ingresa nombre del cliente');
@@ -115,12 +149,20 @@ const NuevaVenta = () => {
     setMostrarNuevoCliente(false);
   };
 
+  /**
+   * @description Calculates cart totals including subtotal, IVA (21%), and final total
+   * @returns {{subtotal: number, iva: number, total: number}} Object with subtotal, IVA, and total amounts
+   */
   const calcularTotal = () => {
     const subtotal = carrito.reduce((s, c) => s + (c.precioUnitario * c.cantidad), 0);
     const iva = Math.round(subtotal * 0.21);
     return { subtotal, iva, total: subtotal + iva };
   };
 
+  /**
+   * @description Confirms the sale (or creates a reservation) after user confirmation, sending payload to API and generating ticket PDF
+   * @param {boolean} [esReserva=false] - If true, creates a reservation with 10% down payment instead of a full sale
+   */
   const confirmarVenta = async (esReserva = false) => {
     if (carrito.length === 0) {
       toast.warning('Agrega productos al carrito');

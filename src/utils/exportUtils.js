@@ -2,6 +2,12 @@ import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
+/**
+ * @description Exports data to an Excel (.xlsx) file with custom column mappings
+ * @param {Array<Object>} data - Array of objects to export
+ * @param {string} filename - Name for the output file (without extension)
+ * @param {Array<{header: string, key?: string, accessor?: Function}>} columns - Column definitions with header labels and data accessors
+ */
 export const exportToExcel = (data, filename, columns) => {
   const ws = XLSX.utils.json_to_sheet(data.map(item => {
     const row = {};
@@ -16,6 +22,13 @@ export const exportToExcel = (data, filename, columns) => {
   XLSX.writeFile(wb, `${filename}.xlsx`);
 };
 
+/**
+ * @description Exports data to a PDF file with auto-generated table
+ * @param {Array<Object>} data - Array of objects to export
+ * @param {string} filename - Name for the output file (without extension)
+ * @param {Array<{header: string, key?: string, accessor?: Function}>} columns - Column definitions with header labels and data accessors
+ * @param {string} [title] - Optional title for the PDF report
+ */
 export const exportToPDF = (data, filename, columns, title) => {
   const doc = new jsPDF();
   
@@ -41,6 +54,10 @@ export const exportToPDF = (data, filename, columns, title) => {
   doc.save(`${filename}.pdf`);
 };
 
+/**
+ * @description Exports product inventory to Excel with stock, pricing, and warranty info
+ * @param {Array<Object>} productos - Array of product objects with variantes, precioCosto, precioVenta, etc.
+ */
 export const exportProductosExcel = (productos) => {
   const data = productos.map(p => ({
     SKU: p.sku,
@@ -56,6 +73,10 @@ export const exportProductosExcel = (productos) => {
   exportToExcel(data, 'productos', Object.keys(data[0] || {}).map(k => ({ header: k, key: k })));
 };
 
+/**
+ * @description Exports movement history to Excel with dates, types, and product details
+ * @param {Array<Object>} movimientos - Array of movement objects with fecha, tipo, producto, etc.
+ */
 export const exportMovimientosExcel = (movimientos) => {
   const data = movimientos.map(m => ({
     Fecha: new Date(m.fecha).toLocaleString(),
@@ -70,6 +91,10 @@ export const exportMovimientosExcel = (movimientos) => {
   exportToExcel(data, 'movimientos', Object.keys(data[0] || {}).map(k => ({ header: k, key: k })));
 };
 
+/**
+ * @description Exports stock alert data to PDF showing products below minimum stock levels
+ * @param {Array<Object>} alertas - Array of alert objects with sku, nombre, variante, stockMinimo
+ */
 export const exportAlertasPDF = (alertas) => {
   const data = alertas.map(a => [
     a.sku,

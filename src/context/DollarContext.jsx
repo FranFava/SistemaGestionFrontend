@@ -1,8 +1,17 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { cajaService } from '../services/api';
 
+/**
+ * Contexto de cotización del dólar para conversión de precios
+ * @type {React.Context}
+ */
 const DollarContext = createContext();
 
+/**
+ * Hook personalizado para acceder al contexto del dólar
+ * @returns {{ cotizacionDolar: number|null, updateCotizacion: Function, loading: boolean, error: string|null, hasCotizacion: boolean, refreshCotizacion: Function }}
+ * @throws Error si se usa fuera de DollarProvider
+ */
 export const useDollar = () => {
   const context = useContext(DollarContext);
   if (!context) {
@@ -11,9 +20,12 @@ export const useDollar = () => {
   return context;
 };
 
+/**
+ * Proveedor del contexto de cotización del dólar
+ * @param {{ children: React.ReactNode }} props - Props del componente
+ * @returns {JSX.Element}
+ */
 export const DollarProvider = ({ children }) => {
-  // null indica que no se pudo obtener la cotización
-  // Los componentes deben verificar antes de usar en cálculos
   const [cotizacionDolar, setCotizacionDolar] = useState(() => {
     const saved = localStorage.getItem('cotizacionDolar');
     return saved ? Number(saved) : null;
@@ -21,8 +33,11 @@ export const DollarProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  /**
+   * Obtiene la cotización del dólar desde el servidor
+   * Solo ejecuta la petición si hay un token de autenticación
+   */
   const fetchCotizacion = async () => {
-    // Solo fetch si hay token guardado - no buscar cotización si no está logueado
     const token = localStorage.getItem('token');
     if (!token) {
       setLoading(false);
@@ -41,7 +56,6 @@ export const DollarProvider = ({ children }) => {
         setError('Sin datos de cotización');
       }
     } catch (err) {
-      // Silenciar errores - el valor null indica que no hay cotización
       setError('No se pudo obtener cotización');
     } finally {
       setLoading(false);
@@ -52,6 +66,11 @@ export const DollarProvider = ({ children }) => {
     fetchCotizacion();
   }, []);
 
+  /**
+   * Actualiza la cotización del dólar en el servidor y localmente
+   * @param {number} nuevoValor - Nueva cotización del dólar
+   * @returns {Promise<boolean>} true si la actualización fue exitosa
+   */
   const updateCotizacion = async (nuevoValor) => {
     try {
       await cajaService.updateCotizacion(nuevoValor);

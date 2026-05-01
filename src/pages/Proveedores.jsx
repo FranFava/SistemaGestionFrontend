@@ -4,6 +4,12 @@ import { toast, confirm } from '../components/Swal';
 import Pagination from '../components/Pagination';
 import { exportToExcel } from '../utils/exportUtils';
 
+/**
+ * Página de gestión de proveedores (CRUD completo)
+ * Permite crear, editar, eliminar y exportar proveedores
+ * 
+ * @returns {JSX.Element}
+ */
 const Proveedores = () => {
   const [proveedores, setProveedores] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -14,6 +20,9 @@ const Proveedores = () => {
 
   useEffect(() => { fetchProveedores(); }, []);
 
+  /**
+   * Carga todos los proveedores desde la API
+   */
   const fetchProveedores = async () => {
     try {
       const { data } = await proveedorService.getAll();
@@ -23,6 +32,10 @@ const Proveedores = () => {
     }
   };
 
+  /**
+   * Envía el formulario para crear o actualizar un proveedor
+   * @param {Event} e - Evento de submit
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -41,8 +54,16 @@ const Proveedores = () => {
     }
   };
 
+  /**
+   * Carga los datos de un proveedor en el formulario para edición
+   * @param {Object} p - Proveedor a editar
+   */
   const handleEdit = (p) => { setForm(p); setEditingId(p._id); setShowModal(true); };
 
+  /**
+   * Elimina un proveedor tras confirmación del usuario
+   * @param {string} id - ID del proveedor a eliminar
+   */
   const handleDelete = async (id) => {
     const result = await confirm('¿Eliminar proveedor?', 'Esta acción no se puede deshacer');
     if (result.isConfirmed) {
@@ -56,6 +77,9 @@ const Proveedores = () => {
     }
   };
 
+  /**
+   * Resetea el formulario a su estado inicial
+   */
   const resetForm = () => { setForm({ nombre: '', rut: '', telefono: '', email: '', direccion: '', contacto: '' }); setEditingId(null); };
 
   const indexOfLast = currentPage * itemsPerPage;
@@ -63,6 +87,9 @@ const Proveedores = () => {
   const currentProveedores = proveedores.slice(indexOfFirst, indexOfLast);
   const totalPages = Math.ceil(proveedores.length / itemsPerPage);
 
+  /**
+   * Exporta los proveedores actuales a un archivo Excel
+   */
   const exportData = () => {
     const columns = ['Nombre', 'RUT', 'Teléfono', 'Email', 'Dirección', 'Contacto'].map(h => ({ header: h, key: h.toLowerCase() }));
     const data = currentProveedores.map(p => ({

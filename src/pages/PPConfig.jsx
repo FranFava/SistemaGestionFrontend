@@ -2,6 +2,12 @@ import { useState, useEffect } from 'react';
 import { ppConfigService } from '../services/api';
 import { toast } from '../components/Swal';
 
+/**
+ * Página de configuración de valores para equipos recibidos en parte de pago (PP)
+ * Permite crear, editar y eliminar configuraciones de valoración por modelo, capacidad y condición
+ * 
+ * @returns {JSX.Element}
+ */
 const PPConfig = () => {
   const [ppConfigs, setPPConfigs] = useState([]);
   const [ppForm, setPPForm] = useState({ modelo: '', capacidad: '', condicion: 'standard', valor: '', descripcion: '' });
@@ -9,6 +15,9 @@ const PPConfig = () => {
 
   useEffect(() => { fetchPPConfigs(); }, []);
 
+  /**
+   * Carga todas las configuraciones PP desde la API
+   */
   const fetchPPConfigs = async () => {
     try {
       const { data } = await ppConfigService.getAll();
@@ -18,6 +27,10 @@ const PPConfig = () => {
     }
   };
 
+  /**
+   * Envía el formulario para crear o actualizar una configuración PP
+   * @param {Event} e - Evento de submit
+   */
   const handlePPSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -36,6 +49,10 @@ const PPConfig = () => {
     }
   };
 
+  /**
+   * Carga los datos de una configuración PP en el formulario para edición
+   * @param {Object} config - Configuración PP a editar
+   */
   const handleEditPP = (config) => {
     setPPForm({
       modelo: config.modelo,
@@ -47,6 +64,10 @@ const PPConfig = () => {
     setEditingPPId(config._id);
   };
 
+  /**
+   * Elimina una configuración PP tras confirmación
+   * @param {string} id - ID de la configuración a eliminar
+   */
   const handleDeletePP = async (id) => {
     if (window.confirm('¿Eliminar este valor de PP?')) {
       try {
@@ -59,6 +80,9 @@ const PPConfig = () => {
     }
   };
 
+  /**
+   * Opciones disponibles para el campo condición del equipo
+   */
   const condicionOptions = [
     { value: 'excelente', label: 'Excelente (90-100%)' },
     { value: 'bueno', label: 'Bueno (80-89%)' },

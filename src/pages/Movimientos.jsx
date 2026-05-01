@@ -38,6 +38,11 @@ const Movimientos = () => {
   const productDropdownRef = useRef(null);
   const tableContainerRef = useRef(null);
 
+  /**
+   * @description Toggles the client info popover for a movement row
+   * @param {Event} e - Click event to prevent propagation
+   * @param {Object} movimiento - Movement object containing client data
+   */
   const handleTogglePopover = (e, movimiento) => {
     e.stopPropagation();
     if (openPopover === movimiento._id) {
@@ -49,6 +54,9 @@ const Movimientos = () => {
     }
   };
 
+  /**
+   * @description Fetches movements from API, optionally filtered by date range, type, or product
+   */
   const fetchMovimientos = async () => {
     try {
       const params = {};
@@ -64,6 +72,9 @@ const Movimientos = () => {
     }
   };
 
+  /**
+   * @description Fetches all products for the product search dropdown
+   */
   const fetchProductos = async () => {
     try {
       const { data } = await productoService.getAll();
@@ -138,6 +149,10 @@ const Movimientos = () => {
     }
   }, [productoSearch, productos]);
 
+  /**
+   * @description Determines the cash register type based on movement type
+   * @returns {'ingreso'|'egreso'} 'ingreso' for sales/reserves, 'egreso' for purchases
+   */
   const getCajaTipo = () => {
     if (form.tipoMovimiento === 'venta' || form.tipoMovimiento === 'recibido_en_parte_de_pago' || form.tipoMovimiento === 'aporte' || form.tipoMovimiento === 'reserva') {
       return 'ingreso';
@@ -145,17 +160,29 @@ const Movimientos = () => {
     return 'egreso';
   };
 
+  /**
+   * @description Returns a human-readable label for the cash register type
+   * @returns {string} 'Ingreso ↑' or 'Egreso ↓'
+   */
   const getCajaTipoLabel = () => {
     const tipo = getCajaTipo();
     return tipo === 'ingreso' ? 'Ingreso ↑' : 'Egreso ↓';
   };
 
+  /**
+   * @description Applies current filters and reloads movements
+   * @param {Event} e - Form submit event
+   */
   const handleFilter = (e) => {
     e.preventDefault();
     setCurrentPage(1);
     fetchMovimientos();
   };
 
+  /**
+   * @description Creates a new movement or updates an existing one, including optional cash register entry, PP data, or reservation data
+   * @param {Event} e - Form submit event
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -247,6 +274,10 @@ const Movimientos = () => {
     }
   };
 
+  /**
+   * @description Opens the modal in edit mode with the selected movement's data pre-filled
+   * @param {Object} movimiento - Movement object to edit
+   */
   const handleEdit = (movimiento) => {
     setEditingMovimiento(movimiento);
     const isPP = !!movimiento.ppData;
@@ -273,6 +304,10 @@ const Movimientos = () => {
     setShowModal(true);
   };
 
+  /**
+   * @description Deletes a movement after user confirmation, reverting stock changes
+   * @param {string} id - Movement ID to delete
+   */
   const handleDelete = async (id) => {
     const result = await confirm('¿Estás seguro?', 'El movimiento será eliminado y el stock será revertido');
     if (result.isConfirmed) {
@@ -286,6 +321,9 @@ const Movimientos = () => {
     }
   };
 
+  /**
+   * @description Closes the movement modal and resets all form state to defaults
+   */
   const handleCloseModal = () => {
     setShowModal(false);
     setEditingMovimiento(null);

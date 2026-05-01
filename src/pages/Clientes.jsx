@@ -4,6 +4,12 @@ import { toast, confirm } from '../components/Swal';
 import Pagination from '../components/Pagination';
 import { exportToExcel } from '../utils/exportUtils';
 
+/**
+ * Página de gestión de clientes (CRUD completo)
+ * Permite crear, editar, eliminar y exportar clientes
+ * 
+ * @returns {JSX.Element}
+ */
 const Clientes = () => {
   const [clientes, setClientes] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -14,6 +20,9 @@ const Clientes = () => {
 
   useEffect(() => { fetchClientes(); }, []);
 
+  /**
+   * Carga todos los clientes desde la API
+   */
   const fetchClientes = async () => {
     try {
       const { data } = await clienteService.getAll();
@@ -23,6 +32,10 @@ const Clientes = () => {
     }
   };
 
+  /**
+   * Envía el formulario para crear o actualizar un cliente
+   * @param {Event} e - Evento de submit
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -41,8 +54,16 @@ const Clientes = () => {
     }
   };
 
+  /**
+   * Carga los datos de un cliente en el formulario para edición
+   * @param {Object} c - Cliente a editar
+   */
   const handleEdit = (c) => { setForm(c); setEditingId(c._id); setShowModal(true); };
 
+  /**
+   * Elimina un cliente tras confirmación del usuario
+   * @param {string} id - ID del cliente a eliminar
+   */
   const handleDelete = async (id) => {
     const result = await confirm('¿Eliminar cliente?', 'Esta acción no se puede deshacer');
     if (result.isConfirmed) {
@@ -56,6 +77,9 @@ const Clientes = () => {
     }
   };
 
+  /**
+   * Resetea el formulario a su estado inicial
+   */
   const resetForm = () => { setForm({ nombre: '', rut: '', telefono: '', email: '', direccion: '' }); setEditingId(null); };
 
   const indexOfLast = currentPage * itemsPerPage;
@@ -63,6 +87,9 @@ const Clientes = () => {
   const currentClientes = clientes.slice(indexOfFirst, indexOfLast);
   const totalPages = Math.ceil(clientes.length / itemsPerPage);
 
+  /**
+   * Exporta los clientes actuales a un archivo Excel
+   */
   const exportData = () => {
     const columns = ['Nombre', 'RUT', 'Teléfono', 'Email', 'Dirección'].map(h => ({ header: h, key: h.toLowerCase() }));
     const data = currentClientes.map(c => ({

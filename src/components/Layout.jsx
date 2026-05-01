@@ -2,6 +2,14 @@ import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Navbar from './Navbar';
 
+/**
+ * Componente Layout que protege rutas autenticadas
+ * Muestra spinner de carga mientras valida el token,
+ * redirige a /login si no hay usuario autenticado,
+ * o renderiza el contenido protegido con Navbar
+ * 
+ * @returns {JSX.Element} Layout con Navbar y Outlet, spinner de carga, o redirect a login
+ */
 const Layout = () => {
   const { user, loading } = useAuth();
 

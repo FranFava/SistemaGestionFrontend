@@ -1,3 +1,13 @@
+/**
+ * Componente de paginación reutilizable con navegación de páginas
+ * Muestra un rango de 5 páginas visibles con ellipsis para saltos largos
+ * 
+ * @param {Object} props
+ * @param {number} props.currentPage - Página actual (1-based)
+ * @param {number} props.totalPages - Total de páginas disponibles
+ * @param {Function} props.onPageChange - Callback ejecutado al cambiar de página, recibe el nuevo número de página
+ * @returns {JSX.Element}
+ */
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
   const pages = [];
   const maxVisible = 5;

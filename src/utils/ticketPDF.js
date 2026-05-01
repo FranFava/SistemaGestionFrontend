@@ -1,6 +1,13 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
+/**
+ * @description Generates a PDF ticket/receipt for a completed sale
+ * @param {Object} ticket - Ticket data with numero, items, subtotal, iva, total, garantia
+ * @param {Object} empresa - Company info with nombre, direccion, contacto, cuil, categoriaIVA
+ * @param {Object} [cliente] - Optional client data
+ * @returns {jsPDF} PDF document instance
+ */
 export const generarTicketPDF = (ticket, empresa, cliente) => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
@@ -127,12 +134,25 @@ export const generarTicketPDF = (ticket, empresa, cliente) => {
   return doc;
 };
 
+/**
+ * @description Generates and immediately downloads a ticket PDF
+ * @param {Object} ticket - Ticket data with numero and items
+ * @param {Object} empresa - Company info for the ticket header
+ * @param {Object} [cliente] - Optional client data
+ */
 export const guardarTicket = (ticket, empresa, cliente) => {
   const doc = generarTicketPDF(ticket, empresa, cliente);
   const nombre = `ticket_${ticket.numero}_${Date.now()}.pdf`;
   doc.save(nombre);
 };
 
+/**
+ * @description Generates a ticket PDF and returns it as a Blob for further processing
+ * @param {Object} ticket - Ticket data with numero and items
+ * @param {Object} empresa - Company info for the ticket header
+ * @param {Object} [cliente] - Optional client data
+ * @returns {Blob} PDF document as a Blob object
+ */
 export const obtenerBlob = (ticket, empresa, cliente) => {
   const doc = generarTicketPDF(ticket, empresa, cliente);
   return doc.output('blob');

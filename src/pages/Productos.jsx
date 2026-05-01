@@ -5,6 +5,12 @@ import Pagination from '../components/Pagination';
 import ProductoDetalle from '../components/ProductoDetalle';
 import { exportProductosExcel } from '../utils/exportUtils';
 
+/**
+ * Página de gestión de productos (CRUD completo)
+ * Permite crear, editar, eliminar y exportar productos con variantes
+ * 
+ * @returns {JSX.Element}
+ */
 const Productos = () => {
   const [productos, setProductos] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -22,6 +28,9 @@ const Productos = () => {
 
   useEffect(() => { fetchProductos(); }, []);
 
+  /**
+   * Carga todos los productos desde la API
+   */
   const fetchProductos = async () => {
     try {
       const { data } = await productoService.getAll();
@@ -31,6 +40,10 @@ const Productos = () => {
     }
   };
 
+  /**
+   * Verifica si un SKU ya existe en el sistema
+   * @param {string} sku - Código SKU a verificar
+   */
   const checkSkuUnique = async (sku) => {
     if (!sku || editingId) return;
     try {
@@ -45,11 +58,19 @@ const Productos = () => {
     }
   };
 
+  /**
+   * Maneja el cambio en el campo SKU
+   * @param {string} value - Nuevo valor del SKU
+   */
   const handleSkuChange = (value) => {
     setForm({ ...form, sku: value });
     checkSkuUnique(value);
   };
 
+  /**
+   * Envía el formulario para crear o actualizar un producto
+   * @param {Event} e - Evento de submit
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (skuError) {
@@ -73,6 +94,10 @@ const Productos = () => {
     }
   };
 
+  /**
+   * Carga los datos de un producto en el formulario para edición
+   * @param {Object} p - Producto a editar
+   */
   const handleEdit = (p) => {
     setForm(p);
     setEditingId(p._id);
@@ -80,6 +105,10 @@ const Productos = () => {
     setShowModal(true);
   };
 
+  /**
+   * Elimina un producto tras confirmación del usuario
+   * @param {string} id - ID del producto a eliminar
+   */
   const handleDelete = async (id) => {
     const result = await confirm('¿Eliminar producto?', 'Esta acción no se puede deshacer');
     if (result.isConfirmed) {
@@ -93,11 +122,18 @@ const Productos = () => {
     }
   };
 
+  /**
+   * Abre el modal de detalle de un producto
+   * @param {Object} p - Producto a mostrar
+   */
   const handleVerDetalle = (p) => {
     setSelectedProducto(p);
     setShowDetalle(true);
   };
 
+  /**
+   * Agrega una nueva variante al formulario de producto
+   */
   const addVariant = () => {
     if (variantForm.color || variantForm.capacidad) {
       setForm({ ...form, variantes: [...form.variantes, { ...variantForm, stock: Number(variantForm.stock) }] });
@@ -105,16 +141,28 @@ const Productos = () => {
     }
   };
 
+  /**
+   * Elimina una variante del formulario por su índice
+   * @param {number} index - Índice de la variante a eliminar
+   */
   const removeVariant = (index) => {
     setForm({ ...form, variantes: form.variantes.filter((_, i) => i !== index) });
   };
 
+  /**
+   * Resetea el formulario a su estado inicial
+   */
   const resetForm = () => {
     setForm({ nombre: '', sku: '', marca: '', categoria: '', descripcion: '', precioCosto: '', precioVenta: '', stockMinimo: '', garantiaMeses: '', variantes: [] });
     setEditingId(null);
     setSkuError('');
   };
 
+  /**
+   * Calcula el stock total de un producto sumando todas sus variantes
+   * @param {Object} p - Producto
+   * @returns {number} Stock total
+   */
   const getTotalStock = (p) => p.variantes.reduce((sum, v) => sum + (v.stock || 0), 0);
 
   const indexOfLast = currentPage * itemsPerPage;

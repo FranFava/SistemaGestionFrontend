@@ -3,6 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { alertaService } from '../services/api';
 import { toast } from '../components/Swal';
 
+/**
+ * Página de gestión de alertas de stock bajo
+ * Permite visualizar, descartar, reincorporar alertas y navegar a reposición de stock
+ * 
+ * @returns {JSX.Element}
+ */
 const Alertas = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('activas');
@@ -14,6 +20,9 @@ const Alertas = () => {
     fetchAlertas();
   }, [activeTab]);
 
+  /**
+   * Carga las alertas según la pestaña activa (activas o descartadas)
+   */
   const fetchAlertas = async () => {
     setLoading(true);
     try {
@@ -31,6 +40,10 @@ const Alertas = () => {
     }
   };
 
+  /**
+   * Descarta una alerta de stock bajo
+   * @param {string} id - ID de la alerta a descartar
+   */
   const handleDescartar = async (id) => {
     try {
       await alertaService.descartar(id);
@@ -41,6 +54,10 @@ const Alertas = () => {
     }
   };
 
+  /**
+   * Reincorpora una alerta previamente descartada
+   * @param {string} id - ID de la alerta a reincorporar
+   */
   const handleReincorporar = async (id) => {
     try {
       await alertaService.reincorporar(id);
@@ -51,6 +68,10 @@ const Alertas = () => {
     }
   };
 
+  /**
+   * Navega a la página de movimientos para reponer stock de un producto
+   * @param {Object} alerta - Alerta con datos del producto y variante
+   */
   const handleReponer = (alerta) => {
     navigate('/movimientos', {
       state: {
@@ -60,6 +81,11 @@ const Alertas = () => {
     });
   };
 
+  /**
+   * Calcula un texto legible de tiempo transcurrido desde una fecha
+   * @param {string|Date} fecha - Fecha de la alerta
+   * @returns {string} Texto descriptivo (ej: "Hoy", "Ayer", "Hace 3 días", "Hace 2 semanas")
+   */
   const getDiasTranscurridos = (fecha) => {
     const ahora = new Date();
     const fechaAlerta = new Date(fecha);
