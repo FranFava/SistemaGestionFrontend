@@ -45,9 +45,6 @@ const Navbar = () => {
   // Contador de alertas de stock
   const [alertasCount, setAlertasCount] = useState(0);
 
-  // Dropdown state for CRM
-  const [crmOpen, setCrmOpen] = useState(false);
-
   // ============================================
   // Efectos - Efectos secundarios
   // ============================================
@@ -84,10 +81,7 @@ const Navbar = () => {
     { path: '/productos', label: 'Productos', icon: 'box' },
     { path: '/movimientos', label: 'Movimientos', icon: 'arrow-left-right' },
     { path: '/caja', label: 'Caja', icon: 'cash-coin' },
-    { label: 'CRM', icon: 'people', dropdown: true, items: [
-      { path: '/crm/clientes', label: 'Clientes', icon: 'people-fill' },
-      { path: '/crm/proveedores', label: 'Proveedores', icon: 'truck-fill' }
-    ]}
+    { label: 'CRM', icon: 'people', path: '/crm' }
   ];
 
   // Elementos de administrador
@@ -95,8 +89,6 @@ const Navbar = () => {
     { path: '/ppconfig', label: 'Valores PP', icon: 'phone' },
     { path: '/usuarios', label: 'Usuarios', icon: 'person-gear' }
   ];
-
-  const isCrmActive = location.pathname.startsWith('/crm');
 
   // ============================================
   // Render - Renderizado del componente
@@ -125,45 +117,17 @@ const Navbar = () => {
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav me-auto">
             {/* Items del menú principal */}
-            {user && navItems.map(item => {
-              if (item.dropdown) {
-                return (
-                  <li className="nav-item nav-dropdown-menu" key={item.label}>
-                    <span 
-                      className={`nav-link nav-dropdown-toggle ${isCrmActive || crmOpen ? 'active' : ''}`}
-                      onClick={() => setCrmOpen(!crmOpen)}
-                    >
-                      <i className={`bi bi-${item.icon}${item.primary ? '' : '-fill'} me-1`}></i>
-                      {item.label}
-                    </span>
-                    <div className={`nav-dropdown-items ${crmOpen ? 'show' : ''}`}>
-                      {item.items.map(sub => (
-                        <Link 
-                          key={sub.path}
-                          className={`nav-link ${location.pathname === sub.path ? 'active' : ''}`}
-                          to={sub.path}
-                          onClick={() => setCrmOpen(false)}
-                        >
-                          <i className={`bi bi-${sub.icon} me-1`}></i>
-                          {sub.label}
-                        </Link>
-                      ))}
-                    </div>
-                  </li>
-                );
-              }
-              return (
-                <li className="nav-item" key={item.path}>
-                  <Link 
-                    className={`nav-link ${location.pathname === item.path ? 'active' : ''} ${item.primary ? 'nav-cta' : ''}`}
-                    to={item.path}
-                  >
-                    <i className={`bi bi-${item.icon}${item.primary ? '' : '-fill'} me-1`}></i>
-                    {item.label}
-                  </Link>
-                </li>
-              );
-            })}
+            {user && navItems.map(item => (
+              <li className="nav-item" key={item.path}>
+                <Link 
+                  className={`nav-link ${location.pathname === item.path ? 'active' : ''} ${item.primary ? 'nav-cta' : ''}`}
+                  to={item.path}
+                >
+                  <i className={`bi bi-${item.icon}${item.primary ? '' : '-fill'} me-1`}></i>
+                  {item.label}
+                </Link>
+              </li>
+            ))}
             
             {/* Items de administrador */}
             {user?.rol === 'admin' && adminItems.map(item => (

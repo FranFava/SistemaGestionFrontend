@@ -13,8 +13,7 @@ import PPConfig from './pages/PPConfig';
 import Caja from './pages/Caja';
 import Alertas from './pages/Alertas';
 import NuevaVenta from './pages/NuevaVenta';
-import CRMClientes from './pages/CRMClientes';
-import CRMProveedores from './pages/CRMProveedores';
+import CRM from './pages/CRM';
 
 function App() {
   return (
@@ -30,8 +29,7 @@ function App() {
             <Route path="movimientos" element={<Movimientos />} />
             <Route path="proveedores" element={<Proveedores />} />
             <Route path="clientes" element={<Clientes />} />
-            <Route path="crm/clientes" element={<CRMClientes />} />
-            <Route path="crm/proveedores" element={<CRMProveedores />} />
+            <Route path="crm" element={<CRM />} />
             <Route path="usuarios" element={<Usuarios />} />
             <Route path="ppconfig" element={<PPConfig />} />
             <Route path="caja" element={<Caja />} />
