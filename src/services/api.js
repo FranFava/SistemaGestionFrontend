@@ -500,4 +500,331 @@ export const ventaService = {
   buscarCliente: (texto) => api.get('/ventas/buscar-cliente', { params: { q: texto } })
 };
 
+/**
+ * Servicio de gestión de terceros (clientes/proveedores unificados)
+ */
+export const terceroService = {
+  /**
+   * Obtiene todos los terceros
+   * @param {Object} [params] - Filtros opcionales
+   * @returns {Promise<Object>} Lista de terceros
+   */
+  getAll: (params) => api.get('/terceros', { params }),
+
+  /**
+   * Obtiene un tercero por su ID
+   * @param {string} id - ID del tercero
+   * @returns {Promise<Object>} Datos del tercero
+   */
+  getById: (id) => api.get(`/terceros/${id}`),
+
+  /**
+   * Crea un nuevo tercero
+   * @param {Object} data - Datos del tercero
+   * @returns {Promise<Object>} Tercero creado
+   */
+  create: (data) => api.post('/terceros', data),
+
+  /**
+   * Actualiza un tercero existente
+   * @param {string} id - ID del tercero
+   * @param {Object} data - Datos actualizados
+   * @returns {Promise<Object>} Tercero actualizado
+   */
+  update: (id, data) => api.put(`/terceros/${id}`, data),
+
+  /**
+   * Elimina un tercero
+   * @param {string} id - ID del tercero
+   * @returns {Promise<Object>} Respuesta de eliminación
+   */
+  delete: (id) => api.delete(`/terceros/${id}`),
+
+  /**
+   * Busca terceros por texto
+   * @param {string} q - Texto de búsqueda
+   * @returns {Promise<Object>} Terceros que coinciden
+   */
+  buscar: (q) => api.get('/terceros/buscar', { params: { q } })
+};
+
+/**
+ * Servicio de gestión de cuentas corrientes
+ */
+export const cuentaCorrienteService = {
+  /**
+   * Obtiene todas las cuentas corrientes
+   * @param {Object} [params] - Filtros (id_tercero, tipo, moneda, activa)
+   * @returns {Promise<Object>} Lista de cuentas corrientes
+   */
+  getAll: (params) => api.get('/cuentas-corrientes', { params }),
+
+  /**
+   * Obtiene una cuenta corriente por su ID
+   * @param {string} id - ID de la cuenta
+   * @returns {Promise<Object>} Datos de la cuenta con saldo calculado
+   */
+  getById: (id) => api.get(`/cuentas-corrientes/${id}`),
+
+  /**
+   * Crea una nueva cuenta corriente
+   * @param {Object} data - Datos de la cuenta
+   * @returns {Promise<Object>} Cuenta creada
+   */
+  create: (data) => api.post('/cuentas-corrientes', data),
+
+  /**
+   * Actualiza una cuenta corriente existente
+   * @param {string} id - ID de la cuenta
+   * @param {Object} data - Datos actualizados
+   * @returns {Promise<Object>} Cuenta actualizada
+   */
+  update: (id, data) => api.put(`/cuentas-corrientes/${id}`, data),
+
+  /**
+   * Cierra una cuenta corriente (solo si saldo es 0)
+   * @param {string} id - ID de la cuenta
+   * @returns {Promise<Object>} Respuesta de cierre
+   */
+  cerrar: (id) => api.delete(`/cuentas-corrientes/${id}`),
+
+  /**
+   * Obtiene cuentas corrientes de un tercero
+   * @param {string} terceroId - ID del tercero
+   * @returns {Promise<Object>} Cuentas del tercero
+   */
+  getByTercero: (terceroId) => api.get(`/cuentas-corrientes/tercero/${terceroId}`),
+
+  /**
+   * Busca cuentas por nombre de tercero
+   * @param {string} q - Texto de búsqueda
+   * @param {string} [tipo] - Filtrar por cliente/proveedor
+   * @param {string} [moneda] - Filtrar por ARS/USD
+   * @returns {Promise<Object>} Cuentas que coinciden
+   */
+  buscar: (q, tipo, moneda) => api.get('/cuentas-corrientes/buscar', { params: { q, tipo, moneda } }),
+
+  /**
+   * Obtiene cuentas corrientes vencidas (fuera de límite de crédito)
+   * @param {Object} [params] - Filtros (tipo, moneda)
+   * @returns {Promise<Object>} Cuentas vencidas
+   */
+  getVencidas: (params) => api.get('/cuentas-corrientes/vencidas', { params }),
+
+  /**
+   * Obtiene resumen de saldos agrupados por tipo y moneda
+   * @param {Object} [params] - Filtros (id_tercero)
+   * @returns {Promise<Object>} Resumen de saldos
+   */
+  getSaldos: (params) => api.get('/cuentas-corrientes/saldos', { params })
+};
+
+/**
+ * Servicio de gestión de movimientos de cuenta corriente (libro diario)
+ */
+export const movimientoCtaService = {
+  /**
+   * Obtiene todos los movimientos
+   * @param {Object} [params] - Filtros (id_cuenta, tipo, moneda, desde, hasta)
+   * @returns {Promise<Object>} Lista de movimientos
+   */
+  getAll: (params) => api.get('/movimientos-cta', { params }),
+
+  /**
+   * Obtiene un movimiento por su ID
+   * @param {string} id - ID del movimiento
+   * @returns {Promise<Object>} Datos del movimiento
+   */
+  getById: (id) => api.get(`/movimientos-cta/${id}`),
+
+  /**
+   * Crea un nuevo movimiento
+   * @param {Object} data - Datos del movimiento
+   * @returns {Promise<Object>} Movimiento creado
+   */
+  create: (data) => api.post('/movimientos-cta', data),
+
+  /**
+   * Obtiene movimientos de una cuenta
+   * @param {string} cuentaId - ID de la cuenta
+   * @returns {Promise<Object>} Movimientos de la cuenta
+   */
+  getByCuenta: (cuentaId) => api.get(`/movimientos-cta/cuenta/${cuentaId}`),
+
+  /**
+   * Obtiene el saldo calculado de una cuenta (agregación)
+   * @param {string} cuentaId - ID de la cuenta
+   * @returns {Promise<Object>} { debe, haber, saldo } + por_moneda
+   */
+  getSaldo: (cuentaId) => api.get(`/movimientos-cta/cuenta/${cuentaId}/saldo`),
+
+  /**
+   * Obtiene el estado de cuenta con movimientos en período
+   * @param {string} cuentaId - ID de la cuenta
+   * @param {Object} [params] - Filtros (desde, hasta)
+   * @returns {Promise<Object>} Estado de cuenta
+   */
+  getEstadoCuenta: (cuentaId, params) => api.get(`/movimientos-cta/cuenta/${cuentaId}/estado`, { params }),
+
+  /**
+   * Obtiene resumen de movimientos agrupados por moneda
+   * @param {Object} [params] - Filtros (id_cuenta, desde, hasta)
+   * @returns {Promise<Object>} Resumen por moneda
+   */
+  getResumen: (params) => api.get('/movimientos-cta/resumen', { params })
+};
+
+/**
+ * Servicio de gestión de comprobantes financieros
+ */
+export const comprobanteService = {
+  /**
+   * Obtiene todos los comprobantes
+   * @param {Object} [params] - Filtros (id_cuenta, tipo, estado, moneda, desde, hasta)
+   * @returns {Promise<Object>} Lista de comprobantes
+   */
+  getAll: (params) => api.get('/comprobantes', { params }),
+
+  /**
+   * Obtiene un comprobante por su ID
+   * @param {string} id - ID del comprobante
+   * @returns {Promise<Object>} Datos del comprobante
+   */
+  getById: (id) => api.get(`/comprobantes/${id}`),
+
+  /**
+   * Crea un nuevo comprobante
+   * @param {Object} data - Datos del comprobante
+   * @returns {Promise<Object>} Comprobante creado con saldo actual
+   */
+  create: (data) => api.post('/comprobantes', data),
+
+  /**
+   * Aplica un pago parcial o total a un comprobante
+   * @param {string} id - ID del comprobante
+   * @param {number} monto - Monto del pago
+   * @returns {Promise<Object>} Comprobante actualizado con saldo
+   */
+  pagar: (id, monto) => api.post(`/comprobantes/${id}/pago`, { monto }),
+
+  /**
+   * Aplica una seña a un comprobante
+   * @param {string} id - ID del comprobante
+   * @param {string} idSenia - ID del comprobante de seña
+   * @returns {Promise<Object>} Comprobante actualizado
+   */
+  aplicarSenia: (id, idSenia) => api.post(`/comprobantes/${id}/senia`, { id_senia: idSenia }),
+
+  /**
+   * Anula un comprobante
+   * @param {string} id - ID del comprobante
+   * @param {string} [motivo] - Motivo de la anulación
+   * @returns {Promise<Object>} Comprobante anulado
+   */
+  anular: (id, motivo) => api.post(`/comprobantes/${id}/anular`, { motivo }),
+
+  /**
+   * Obtiene comprobantes de una cuenta
+   * @param {string} cuentaId - ID de la cuenta
+   * @param {Object} [params] - Filtros (tipo, estado, desde, hasta)
+   * @returns {Promise<Object>} Comprobantes de la cuenta
+   */
+  getByCuenta: (cuentaId, params) => api.get(`/comprobantes/cuenta/${cuentaId}`, { params }),
+
+  /**
+   * Obtiene comprobantes vencidos
+   * @returns {Promise<Object>} Comprobantes vencidos
+   */
+  getVencidos: () => api.get('/comprobantes/vencidos'),
+
+  /**
+   * Obtiene el próximo número de comprobante
+   * @param {Object} params - { tipo, moneda }
+   * @returns {Promise<Object>} Próximo número
+   */
+  getProximo: (params) => api.get('/comprobantes/proximo', { params }),
+
+  /**
+   * Obtiene resumen de comprobantes por moneda
+   * @param {Object} [params] - Filtros (id_cuenta, desde, hasta)
+   * @returns {Promise<Object>} Resumen
+   */
+  getResumen: (params) => api.get('/comprobantes/resumen', { params })
+};
+
+/**
+ * Servicio de gestión de préstamos
+ */
+export const prestamoService = {
+  /**
+   * Obtiene todos los préstamos
+   * @param {Object} [params] - Filtros (estado, moneda, acreedor)
+   * @returns {Promise<Object>} Lista de préstamos
+   */
+  getAll: (params) => api.get('/prestamos', { params }),
+
+  /**
+   * Obtiene un préstamo por su ID (incluye cuotas)
+   * @param {string} id - ID del préstamo
+   * @returns {Promise<Object>} Préstamo con cuotas
+   */
+  getById: (id) => api.get(`/prestamos/${id}`),
+
+  /**
+   * Crea un nuevo préstamo con plan de amortización
+   * @param {Object} data - Datos del préstamo
+   * @returns {Promise<Object>} Préstamo creado
+   */
+  create: (data) => api.post('/prestamos', data),
+
+  /**
+   * Cancela un préstamo (anula cuotas pendientes)
+   * @param {string} id - ID del préstamo
+   * @returns {Promise<Object>} Préstamo cancelado
+   */
+  cancelar: (id) => api.post(`/prestamos/${id}/cancelar`),
+
+  /**
+   * Paga una cuota de un préstamo
+   * @param {string} prestamoId - ID del préstamo
+   * @param {number} nro - Número de cuota
+   * @param {string} [metodoPago] - Método de pago
+   * @returns {Promise<Object>} Préstamo y cuota actualizados
+   */
+  pagarCuota: (prestamoId, nro, metodoPago) => api.post(`/prestamos/${prestamoId}/cuota/${nro}/pagar`, { metodoPago }),
+
+  /**
+   * Anula una cuota pagada
+   * @param {string} cuotaId - ID de la cuota
+   * @returns {Promise<Object>} Cuota anulada
+   */
+  anularCuota: (cuotaId) => api.post(`/prestamos/cuota/${cuotaId}/anular`),
+
+  /**
+   * Obtiene las cuotas de un préstamo
+   * @param {string} prestamoId - ID del préstamo
+   * @returns {Promise<Object>} Lista de cuotas
+   */
+  getCuotas: (prestamoId) => api.get(`/prestamos/${prestamoId}/cuotas`),
+
+  /**
+   * Obtiene cuotas vencidas de todos los préstamos
+   * @returns {Promise<Object>} Cuotas vencidas
+   */
+  getCuotasVencidas: () => api.get('/prestamos/cuotas-vencidas'),
+
+  /**
+   * Obtiene cuotas con vencimiento próximo
+   * @param {Object} [params] - { dias } (default: 30)
+   * @returns {Promise<Object>} Cuotas próximas
+   */
+  getProximas: (params) => api.get('/prestamos/proximas', { params }),
+
+  /**
+   * Obtiene resumen de préstamos activos
+   * @returns {Promise<Object>} Resumen por moneda
+   */
+  getResumen: () => api.get('/prestamos/resumen')
+};
+
 export default api;
