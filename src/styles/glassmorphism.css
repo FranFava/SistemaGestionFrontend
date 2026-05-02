@@ -909,3 +909,126 @@ textarea,
     transform: translateX(-50%) scale(1);
   }
 }
+
+/* ------------------------------------------
+   CRM Cards
+   ------------------------------------------ */
+.crm-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1rem;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  position: relative;
+  height: 100%;
+}
+
+.crm-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.crm-card .crm-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.crm-card .crm-card-name {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #ffffff;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.crm-card .crm-card-field {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.85rem;
+  margin-bottom: 0.4rem;
+}
+
+.crm-card .crm-card-field i {
+  color: rgba(165, 180, 252, 0.6);
+  width: 16px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.crm-card .crm-card-actions {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.crm-card .crm-card-actions .btn {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  transition: all 0.2s ease;
+}
+
+/* Navbar dropdown for CRM */
+.nav-dropdown-menu {
+  position: relative;
+}
+
+.nav-dropdown-toggle {
+  cursor: pointer;
+  user-select: none;
+}
+
+.nav-dropdown-toggle::after {
+  content: '\F282';
+  font-family: 'bootstrap-icons';
+  font-size: 0.7em;
+  margin-left: 4px;
+  vertical-align: middle;
+  transition: transform 0.2s ease;
+}
+
+.nav-dropdown-toggle.show::after {
+  transform: rotate(180deg);
+}
+
+.nav-dropdown-items {
+  display: none;
+  padding-left: 0.5rem;
+}
+
+.nav-dropdown-items.show {
+  display: block;
+}
+
+.nav-dropdown-items .nav-link {
+  font-size: 0.85rem;
+  padding: 0.35rem 0.75rem;
+}
+
+/* View toggle button */
+.view-toggle-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.7);
+  padding: 6px 12px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.view-toggle-btn:hover,
+.view-toggle-btn.active {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.25);
+}
