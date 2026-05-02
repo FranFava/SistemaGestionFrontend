@@ -827,4 +827,212 @@ export const prestamoService = {
   getResumen: () => api.get('/prestamos/resumen')
 };
 
+/**
+ * Servicio de gestión de categorías de productos
+ */
+export const categoriaService = {
+  /**
+   * Obtiene todas las categorías
+   * @param {Object} [params] - Filtros (activa)
+   * @returns {Promise<Object>} Lista de categorías
+   */
+  getAll: (params) => api.get('/categorias', { params }),
+
+  /**
+   * Obtiene una categoría por ID
+   * @param {string} id - ID de la categoría
+   * @returns {Promise<Object>} Categoría con breadcrumb
+   */
+  getById: (id) => api.get(`/categorias/${id}`),
+
+  /**
+   * Crea una nueva categoría
+   * @param {Object} data - Datos (nombre, id_padre?, descripcion?)
+   * @returns {Promise<Object>} Categoría creada
+   */
+  create: (data) => api.post('/categorias', data),
+
+  /**
+   * Actualiza una categoría
+   * @param {string} id - ID
+   * @param {Object} data - Datos actualizados
+   * @returns {Promise<Object>} Categoría actualizada
+   */
+  update: (id, data) => api.put(`/categorias/${id}`, data),
+
+  /**
+   * Elimina (desactiva) una categoría
+   * @param {string} id - ID
+   * @returns {Promise<Object>} Respuesta
+   */
+  delete: (id) => api.delete(`/categorias/${id}`),
+
+  /**
+   * Obtiene el árbol completo de categorías
+   * @returns {Promise<Object>} Árbol jerárquico
+   */
+  getArbol: () => api.get('/categorias/arbol'),
+
+  /**
+   * Obtiene el breadcrumb (path) de una categoría
+   * @param {string} id - ID
+   * @returns {Promise<Object>} { id, path: "Granos > Cereales > Trigo" }
+   */
+  getPath: (id) => api.get(`/categorias/path/${id}`)
+};
+
+/**
+ * Servicio de gestión de listas de precios
+ */
+export const listaPrecioService = {
+  /**
+   * Obtiene todas las listas de precios
+   * @param {Object} [params] - Filtros (activa, moneda)
+   * @returns {Promise<Object>} Lista de precios
+   */
+  getAll: (params) => api.get('/listas-precio', { params }),
+
+  /**
+   * Obtiene una lista por ID
+   * @param {string} id - ID
+   * @returns {Promise<Object>} Lista de precios
+   */
+  getById: (id) => api.get(`/listas-precio/${id}`),
+
+  /**
+   * Crea una nueva lista de precios
+   * @param {Object} data - { nombre, moneda, descripcion? }
+   * @returns {Promise<Object>} Lista creada
+   */
+  create: (data) => api.post('/listas-precio', data),
+
+  /**
+   * Actualiza una lista
+   * @param {string} id - ID
+   * @param {Object} data - Datos
+   * @returns {Promise<Object>} Lista actualizada
+   */
+  update: (id, data) => api.put(`/listas-precio/${id}`, data),
+
+  /**
+   * Elimina (desactiva) una lista
+   * @param {string} id - ID
+   * @returns {Promise<Object>} Respuesta
+   */
+  delete: (id) => api.delete(`/listas-precio/${id}`),
+
+  /**
+   * Obtiene listas activas
+   * @returns {Promise<Object>} Listas activas
+   */
+  getActivas: () => api.get('/listas-precio/activas')
+};
+
+/**
+ * Servicio de gestión de precios por producto
+ */
+export const precioProductoService = {
+  /**
+   * Obtiene todos los precios
+   * @param {Object} [params] - Filtros (id_producto, id_lista, moneda, activo)
+   * @returns {Promise<Object>} Lista de precios
+   */
+  getAll: (params) => api.get('/precios-producto', { params }),
+
+  /**
+   * Obtiene un precio por ID
+   * @param {string} id - ID
+   * @returns {Promise<Object>} Precio
+   */
+  getById: (id) => api.get(`/precios-producto/${id}`),
+
+  /**
+   * Crea un nuevo precio
+   * @param {Object} data - { id_producto, id_lista, precio, moneda, vigencia_desde, vigencia_hasta? }
+   * @returns {Promise<Object>} Precio creado
+   */
+  create: (data) => api.post('/precios-producto', data),
+
+  /**
+   * Actualiza un precio
+   * @param {string} id - ID
+   * @param {Object} data - Datos
+   * @returns {Promise<Object>} Precio actualizado
+   */
+  update: (id, data) => api.put(`/precios-producto/${id}`, data),
+
+  /**
+   * Elimina (desactiva) un precio
+   * @param {string} id - ID
+   * @returns {Promise<Object>} Respuesta
+   */
+  delete: (id) => api.delete(`/precios-producto/${id}`),
+
+  /**
+   * Obtiene el precio vigente de un producto en una lista
+   * @param {string} productoId - ID del producto
+   * @param {string} listaId - ID de la lista
+   * @param {Object} [params] - { fecha }
+   * @returns {Promise<Object>} Precio vigente
+   */
+  getVigente: (productoId, listaId, params) => api.get(`/precios-producto/vigente/${productoId}/${listaId}`, { params }),
+
+  /**
+   * Obtiene precios de un producto
+   * @param {string} productoId - ID del producto
+   * @param {Object} [params] - { fecha }
+   * @returns {Promise<Object>} Precios del producto
+   */
+  getByProducto: (productoId, params) => api.get(`/precios-producto/producto/${productoId}`, { params }),
+
+  /**
+   * Obtiene precios de una lista
+   * @param {string} listaId - ID de la lista
+   * @param {Object} [params] - { fecha }
+   * @returns {Promise<Object>} Precios de la lista
+   */
+  getByLista: (listaId, params) => api.get(`/precios-producto/lista/${listaId}`, { params })
+};
+
+/**
+ * Servicio de gestión de movimientos de stock (inventario)
+ */
+export const movimientoStockService = {
+  /**
+   * Obtiene todos los movimientos de stock
+   * @param {Object} [params] - Filtros (id_producto, tipo, deposito, desde, hasta)
+   * @returns {Promise<Object>} Lista de movimientos
+   */
+  getAll: (params) => api.get('/movimientos-stock', { params }),
+
+  /**
+   * Obtiene movimientos de un producto
+   * @param {string} productoId - ID del producto
+   * @param {Object} [params] - Filtros (tipo, desde, hasta)
+   * @returns {Promise<Object>} Movimientos del producto
+   */
+  getByProducto: (productoId, params) => api.get(`/movimientos-stock/producto/${productoId}`, { params }),
+
+  /**
+   * Obtiene movimientos de un comprobante
+   * @param {string} comprobanteId - ID del comprobante
+   * @returns {Promise<Object>} Movimientos del comprobante
+   */
+  getByComprobante: (comprobanteId) => api.get(`/movimientos-stock/comprobante/${comprobanteId}`),
+
+  /**
+   * Obtiene stock actual de un producto en un depósito
+   * @param {string} productoId - ID del producto
+   * @param {string} [deposito] - Nombre del depósito (default: Central)
+   * @returns {Promise<Object>} { entradas, salidas, stock }
+   */
+  getStockActual: (productoId, deposito) => api.get(`/movimientos-stock/stock/${productoId}`, { params: deposito ? { deposito } : {} }),
+
+  /**
+   * Obtiene stock por depósito
+   * @returns {Promise<Object>} Stock agrupado por depósito y producto
+   */
+  getStockPorDeposito: () => api.get('/movimientos-stock/por-deposito')
+};
+
 export default api;

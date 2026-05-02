@@ -80,12 +80,16 @@ const Navbar = () => {
     { path: '/nueva-venta', label: 'Nueva Venta', icon: 'cart', primary: true },
     { path: '/productos', label: 'Productos', icon: 'box' },
     { path: '/movimientos', label: 'Movimientos', icon: 'arrow-left-right' },
+    { path: '/comprobantes', label: 'Comprobantes', icon: 'receipt' },
+    { path: '/stock', label: 'Stock', icon: 'box-seam' },
     { path: '/caja', label: 'Caja', icon: 'cash-coin' },
-    { label: 'CRM', icon: 'people', path: '/crm' }
+    { path: '/crm', label: 'CRM', icon: 'people' }
   ];
 
   // Elementos de administrador
   const adminItems = [
+    { path: '/categorias', label: 'Categorias', icon: 'diagram-3' },
+    { path: '/listas-precio', label: 'Listas Precio', icon: 'tags' },
     { path: '/ppconfig', label: 'Valores PP', icon: 'phone' },
     { path: '/usuarios', label: 'Usuarios', icon: 'person-gear' }
   ];

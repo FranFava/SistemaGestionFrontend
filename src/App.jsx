@@ -14,6 +14,10 @@ import Caja from './pages/Caja';
 import Alertas from './pages/Alertas';
 import NuevaVenta from './pages/NuevaVenta';
 import CRM from './pages/CRM';
+import Categorias from './pages/Categorias';
+import ListasPrecio from './pages/ListasPrecio';
+import Comprobantes from './pages/Comprobantes';
+import Stock from './pages/Stock';
 
 function App() {
   return (
@@ -35,6 +39,10 @@ function App() {
             <Route path="caja" element={<Caja />} />
             <Route path="alertas" element={<Alertas />} />
             <Route path="nueva-venta" element={<NuevaVenta />} />
+            <Route path="categorias" element={<Categorias />} />
+            <Route path="listas-precio" element={<ListasPrecio />} />
+            <Route path="comprobantes" element={<Comprobantes />} />
+            <Route path="stock" element={<Stock />} />
           </Route>
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
