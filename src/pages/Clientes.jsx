@@ -1,75 +1,77 @@
 import { useState, useEffect } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { clienteService } from '../services/api';
+import { clienteSchema } from '../schemas';
 import { toast, confirm } from '../components/Swal';
 import Pagination from '../components/Pagination';
 import { exportToExcel } from '../utils/exportUtils';
+import { FormInput, FormModal } from '../components/form';
+import { PageHeader, EmptyState, LoadingOverlay } from '../components/ui';
 
-/**
- * Página de gestión de clientes (CRUD completo)
- * Permite crear, editar, eliminar y exportar clientes
- * 
- * @returns {JSX.Element}
- */
 const Clientes = () => {
   const [clientes, setClientes] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
-  const [form, setForm] = useState({ nombre: '', rut: '', telefono: '', email: '', direccion: '' });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  /**
-   * Carga todos los clientes desde la API
-   */
+  const { control, handleSubmit, reset, setValue, formState: { errors } } = useForm({
+    resolver: zodResolver(clienteSchema),
+    defaultValues: { nombre: '', rut: '', telefono: '', email: '', direccion: '' },
+  });
+
   const fetchClientes = async () => {
     try {
-      const { data } = await clienteService.getAll();
+      const res = await clienteService.getAll();
+      const data = res.data?.data || res.data || [];
       setClientes(data);
     } catch {
       toast.error('Error al cargar clientes');
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    clienteService.getAll()
-      .then(({ data }) => setClientes(data))
-      .catch(() => toast.error('Error al cargar clientes'));
+    fetchClientes();
   }, []);
 
-  /**
-   * Envía el formulario para crear o actualizar un cliente
-   * @param {Event} e - Evento de submit
-   */
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const onSubmit = async (data) => {
+    setIsSubmitting(true);
     try {
       if (editingId) {
-        await clienteService.update(editingId, form);
+        await clienteService.update(editingId, data);
         toast.success('Cliente actualizado');
       } else {
-        await clienteService.create(form);
+        await clienteService.create(data);
         toast.success('Cliente creado');
       }
       setShowModal(false);
-      resetForm();
+      reset();
+      setEditingId(null);
       fetchClientes();
     } catch (err) {
       toast.error(err.response?.data?.message || 'Error');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  /**
-   * Carga los datos de un cliente en el formulario para edición
-   * @param {Object} c - Cliente a editar
-   */
-  const handleEdit = (c) => { setForm(c); setEditingId(c._id); setShowModal(true); };
+  const handleEdit = (c) => {
+    setValue('nombre', c.nombre);
+    setValue('rut', c.rut || '');
+    setValue('telefono', c.telefono || '');
+    setValue('email', c.email || '');
+    setValue('direccion', c.direccion || '');
+    setEditingId(c._id);
+    setShowModal(true);
+  };
 
-  /**
-   * Elimina un cliente tras confirmación del usuario
-   * @param {string} id - ID del cliente a eliminar
-   */
   const handleDelete = async (id) => {
-    const result = await confirm('¿Eliminar cliente?', 'Esta acción no se puede deshacer');
+    const result = await confirm('Eliminar cliente', 'Esta accion no se puede deshacer');
     if (result.isConfirmed) {
       try {
         await clienteService.delete(id);
@@ -81,87 +83,85 @@ const Clientes = () => {
     }
   };
 
-  /**
-   * Resetea el formulario a su estado inicial
-   */
-  const resetForm = () => { setForm({ nombre: '', rut: '', telefono: '', email: '', direccion: '' }); setEditingId(null); };
-
   const indexOfLast = currentPage * itemsPerPage;
   const indexOfFirst = indexOfLast - itemsPerPage;
   const currentClientes = clientes.slice(indexOfFirst, indexOfLast);
   const totalPages = Math.ceil(clientes.length / itemsPerPage);
 
-  /**
-   * Exporta los clientes actuales a un archivo Excel
-   */
   const exportData = () => {
-    const columns = ['Nombre', 'RUT', 'Teléfono', 'Email', 'Dirección'].map(h => ({ header: h, key: h.toLowerCase() }));
+    const columns = ['Nombre', 'RUT', 'Telefono', 'Email', 'Direccion'].map(h => ({ header: h, key: h.toLowerCase() }));
     const data = currentClientes.map(c => ({
-      nombre: c.nombre, rut: c.rut, teléfono: c.telefono, email: c.email, dirección: c.direccion
+      nombre: c.nombre, rut: c.rut, telefono: c.telefono, email: c.email, direccion: c.direccion
     }));
     exportToExcel(data, 'clientes', columns);
   };
 
+  if (loading) return <LoadingOverlay text="Cargando clientes..." />;
+
   return (
     <div>
-      <div className="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2 mb-4">
-        <h2 className="mb-0"><i className="bi bi-people me-2"></i>Clientes</h2>
-        <div className="d-flex gap-2">
-          <button className="glass-btn" onClick={exportData}><i className="bi bi-file-excel me-1"></i>Exportar</button>
-          <button className="glass-btn glass-btn-primary" onClick={() => { resetForm(); setShowModal(true); }}><i className="bi bi-plus-circle me-1"></i>Nuevo</button>
-        </div>
-      </div>
+      <PageHeader
+        icon="people"
+        title="Clientes"
+        actions={
+          <>
+            <button className="glass-btn" onClick={exportData}><i className="bi bi-file-excel me-1"></i>Exportar</button>
+            <button className="glass-btn glass-btn-primary" onClick={() => { reset(); setEditingId(null); setShowModal(true); }}><i className="bi bi-plus-circle me-1"></i>Nuevo</button>
+          </>
+        }
+      />
 
       <div className="glass-table">
         <div className="table-responsive">
         <table className="table table-hover table-sm mb-0">
-          <thead><tr><th>Nombre</th><th>RUT</th><th>Teléfono</th><th>Email</th><th>Dirección</th><th>Acciones</th></tr></thead>
+          <thead><tr><th>Nombre</th><th>RUT</th><th>Telefono</th><th>Email</th><th>Direccion</th><th>Acciones</th></tr></thead>
           <tbody>
-            {currentClientes.map(c => (
+            {currentClientes.length === 0 ? (
+              <tr><td colSpan="6"><EmptyState icon="people" title="No hay clientes registrados" description="Crea tu primer cliente con el boton Nuevo" /></td></tr>
+            ) : currentClientes.map(c => (
               <tr key={c._id}>
                 <td>{c.nombre}</td>
-                <td>{c.rut}</td>
-                <td>{c.telefono}</td>
-                <td>{c.email}</td>
-                <td>{c.direccion}</td>
+                <td>{c.rut || '—'}</td>
+                <td>{c.telefono || '—'}</td>
+                <td>{c.email || '—'}</td>
+                <td>{c.direccion || '—'}</td>
                 <td>
                   <button className="btn btn-primary btn-sm me-1" onClick={() => handleEdit(c)} title="Editar" style={{ padding: '4px 8px' }}><i className="bi bi-pencil"></i></button>
                   <button className="btn btn-danger btn-sm" onClick={() => handleDelete(c._id)} title="Eliminar" style={{ padding: '4px 8px' }}><i className="bi bi-trash"></i></button>
                 </td>
               </tr>
             ))}
-            </tbody>
+          </tbody>
         </table>
         </div>
       </div>
 
       {totalPages > 1 && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />}
 
-      {showModal && (
-        <div className="modal show d-block glass-modal" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}>
-          <div className="modal-dialog modal-dialog-scrollable">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title"><i className="bi bi-person-plus me-2"></i>{editingId ? 'Editar' : 'Nuevo'} Cliente</h5>
-                <button type="button" className="btn-close" onClick={() => { setShowModal(false); resetForm(); }}></button>
-              </div>
-              <form onSubmit={handleSubmit}>
-                <div className="modal-body" style={{ maxHeight: '70vh', overflowY: 'auto' }}>
-                  <div className="mb-3"><label className="form-label">Nombre *</label><input className="glass-input" value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })} required /></div>
-                  <div className="mb-3"><label className="form-label">RUT</label><input className="glass-input" value={form.rut} onChange={e => setForm({ ...form, rut: e.target.value })} /></div>
-                  <div className="mb-3"><label className="form-label">Teléfono</label><input className="glass-input" value={form.telefono} onChange={e => setForm({ ...form, telefono: e.target.value })} /></div>
-                  <div className="mb-3"><label className="form-label">Email</label><input type="email" className="glass-input" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} /></div>
-                  <div className="mb-3"><label className="form-label">Dirección</label><input className="glass-input" value={form.direccion} onChange={e => setForm({ ...form, direccion: e.target.value })} /></div>
-                </div>
-                <div className="modal-footer">
-                  <button type="button" className="glass-btn" onClick={() => { setShowModal(false); resetForm(); }}>Cancelar</button>
-                  <button type="submit" className="glass-btn glass-btn-primary">{editingId ? 'Actualizar' : 'Crear'}</button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
+      <FormModal
+        isOpen={showModal}
+        onClose={() => { setShowModal(false); reset(); setEditingId(null); }}
+        title={editingId ? 'Editar Cliente' : 'Nuevo Cliente'}
+        onSubmit={handleSubmit(onSubmit)}
+        isEditing={!!editingId}
+        isLoading={isSubmitting}
+      >
+        <Controller name="nombre" control={control} render={({ field }) => (
+          <FormInput label="Nombre" {...field} error={errors.nombre?.message} required icon="person" />
+        )} />
+        <Controller name="rut" control={control} render={({ field }) => (
+          <FormInput label="RUT" {...field} error={errors.rut?.message} icon="upc-scan" />
+        )} />
+        <Controller name="telefono" control={control} render={({ field }) => (
+          <FormInput label="Telefono" type="tel" {...field} error={errors.telefono?.message} icon="telephone" />
+        )} />
+        <Controller name="email" control={control} render={({ field }) => (
+          <FormInput label="Email" type="email" {...field} error={errors.email?.message} icon="envelope" />
+        )} />
+        <Controller name="direccion" control={control} render={({ field }) => (
+          <FormInput label="Direccion" {...field} error={errors.direccion?.message} icon="geo-alt" />
+        )} />
+      </FormModal>
     </div>
   );
 };

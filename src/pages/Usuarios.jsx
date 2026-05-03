@@ -1,125 +1,75 @@
-/**
- * ============================================
- * Página Usuarios
- * Gestión de usuarios del sistema
- * ============================================
- */
-
-// React - Hooks
 import { useState, useEffect } from 'react';
-
-// Servicios - API
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { usuarioService } from '../services/api';
-
-// Componentes - Notificaciones y paginación
+import { usuarioSchema } from '../schemas';
 import { toast, confirm } from '../components/Swal';
 import Pagination from '../components/Pagination';
+import { FormInput, FormSelect, FormModal } from '../components/form';
+import { PageHeader, StatusBadge, EmptyState, LoadingOverlay } from '../components/ui';
 
-/**
- * Página de Usuarios
- * @description Permite crear, editar, eliminar y listar usuarios del sistema
- * @returns {JSX.Element} Gestión de usuarios
- */
 const Usuarios = () => {
-  // ============================================
-  // Estado - Variables de estado del componente
-  // ============================================
-  
-  // Lista de usuarios
   const [usuarios, setUsuarios] = useState([]);
-  
-  // Control de modal
+  const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
-  
-  // ID del usuario en edición
   const [editingId, setEditingId] = useState(null);
-  
-  // Paginación
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
-  
-  // Formulario
-  const [form, setForm] = useState({ 
-    username: '', 
-    password: '', 
-    nombre: '', 
-    rol: 'vendedor' 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const { control, handleSubmit, reset, setValue, formState: { errors } } = useForm({
+    resolver: zodResolver(usuarioSchema),
+    defaultValues: { username: '', password: '', nombre: '', rol: 'vendedor' },
   });
 
-  // ============================================
-  // Funciones de Fetch - Obtención de datos
-  // ============================================
-
-  /**
-   * Fetch de usuarios
-   * @description Obtiene todos los usuarios del sistema
-   */
   const fetchUsuarios = async () => {
     try {
-      const { data } = await usuarioService.getAll();
-      setUsuarios(data);
+      const res = await usuarioService.getAll();
+      setUsuarios(res.data?.data || res.data || []);
     } catch {
       toast.error('Error al cargar usuarios');
+    } finally {
+      setLoading(false);
     }
   };
 
-  // ============================================
-  // Efectos - Efectos secundarios
-  // ============================================
-
-  /**
-   * Efecto: Cargar usuarios
-   * @description Obtiene la lista de usuarios al montar el componente
-   */
   useEffect(() => {
-    usuarioService.getAll()
-      .then(({ data }) => setUsuarios(data))
-      .catch(() => toast.error('Error al cargar usuarios'));
+    fetchUsuarios();
   }, []);
 
-  // ============================================
-  // Handlers - Funciones manejadoras
-  // ============================================
-
-  /**
-   * Enviar formulario
-   * @param {Event} e - Evento del formulario
-   */
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const onSubmit = async (data) => {
+    setIsSubmitting(true);
     try {
       if (editingId) {
-        const { password, ...rest } = form;
-        await usuarioService.update(editingId, password ? form : rest);
+        const { password, ...rest } = data;
+        await usuarioService.update(editingId, password ? data : rest);
         toast.success('Usuario actualizado');
       } else {
-        await usuarioService.create(form);
+        await usuarioService.create(data);
         toast.success('Usuario creado');
       }
       setShowModal(false);
-      resetForm();
+      reset();
+      setEditingId(null);
       fetchUsuarios();
     } catch (err) {
       toast.error(err.response?.data?.message || 'Error');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  /**
-   * Editar usuario
-   * @param {Object} u - Usuario a editar
-   */
   const handleEdit = (u) => {
-    setForm({ username: u.username, password: '', nombre: u.nombre, rol: u.rol });
+    setValue('username', u.username);
+    setValue('password', '');
+    setValue('nombre', u.nombre);
+    setValue('rol', u.rol);
     setEditingId(u._id);
     setShowModal(true);
   };
 
-  /**
-   * Eliminar usuario
-   * @param {string} id - ID del usuario a eliminar
-   */
   const handleDelete = async (id) => {
-    const result = await confirm('¿Eliminar usuario?', 'Esta acción no se puede deshacer');
+    const result = await confirm('Eliminar usuario', 'Esta accion no se puede deshacer');
     if (result.isConfirmed) {
       try {
         await usuarioService.delete(id);
@@ -131,45 +81,30 @@ const Usuarios = () => {
     }
   };
 
-  /**
-   * Resetear formulario
-   */
-  const resetForm = () => {
-    setForm({ username: '', password: '', nombre: '', rol: 'vendedor' });
-    setEditingId(null);
-  };
-
-  // ============================================
-  // Utilidades - Paginación
-  // ============================================
-
   const indexOfLast = currentPage * itemsPerPage;
   const indexOfFirst = indexOfLast - itemsPerPage;
   const currentUsuarios = usuarios.slice(indexOfFirst, indexOfLast);
   const totalPages = Math.ceil(usuarios.length / itemsPerPage);
 
-  // ============================================
-  // Render - Renderizado del componente
-  // ============================================
-  
+  if (loading) return <LoadingOverlay text="Cargando usuarios..." />;
+
+  const rolOptions = [
+    { value: 'admin', label: 'Administrador' },
+    { value: 'vendedor', label: 'Vendedor' },
+  ];
+
   return (
     <div>
-      {/* Header */}
-      <div className="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2 mb-4">
-        <h2 className="mb-0">
-          <i className="bi bi-people me-2"></i>
-          Usuarios
-        </h2>
-        <button 
-          className="glass-btn glass-btn-primary" 
-          onClick={() => { resetForm(); setShowModal(true); }}
-        >
-          <i className="bi bi-plus-circle me-1"></i>
-          Nuevo
-        </button>
-      </div>
+      <PageHeader
+        icon="people"
+        title="Usuarios"
+        actions={
+          <button className="glass-btn glass-btn-primary" onClick={() => { reset(); setEditingId(null); setShowModal(true); }}>
+            <i className="bi bi-plus-circle me-1"></i>Nuevo
+          </button>
+        }
+      />
 
-      {/* Tabla de usuarios */}
       <div className="glass-table">
         <div className="table-responsive">
         <table className="table table-hover table-sm mb-0">
@@ -183,135 +118,48 @@ const Usuarios = () => {
             </tr>
           </thead>
           <tbody>
-            {currentUsuarios.map(u => (
+            {currentUsuarios.length === 0 ? (
+              <tr><td colSpan="5"><EmptyState icon="people" title="No hay usuarios registrados" /></td></tr>
+            ) : currentUsuarios.map(u => (
               <tr key={u._id}>
                 <td>{u.username}</td>
                 <td>{u.nombre}</td>
+                <td><StatusBadge value={u.rol} /></td>
+                <td><StatusBadge value={u.activo ? 'Activo' : 'Inactivo'} /></td>
                 <td>
-                  <span className={`badge bg-${u.rol === 'admin' ? 'primary' : 'secondary'}`}>
-                    {u.rol}
-                  </span>
-                </td>
-                <td>
-                  <span className={`badge bg-${u.activo ? 'success' : 'danger'}`}>
-                    {u.activo ? 'Activo' : 'Inactivo'}
-                  </span>
-                </td>
-                <td>
-                  <button 
-                    className="btn btn-primary btn-sm me-1" 
-                    onClick={() => handleEdit(u)}
-                    title="Editar"
-                    style={{ padding: '4px 8px' }}
-                  >
-                    <i className="bi bi-pencil"></i>
-                  </button>
-                  <button 
-                    className="btn btn-danger btn-sm" 
-                    onClick={() => handleDelete(u._id)}
-                    title="Eliminar"
-                    style={{ padding: '4px 8px' }}
-                  >
-                    <i className="bi bi-trash"></i>
-                  </button>
+                  <button className="btn btn-primary btn-sm me-1" onClick={() => handleEdit(u)} title="Editar" style={{ padding: '4px 8px' }}><i className="bi bi-pencil"></i></button>
+                  <button className="btn btn-danger btn-sm" onClick={() => handleDelete(u._id)} title="Eliminar" style={{ padding: '4px 8px' }}><i className="bi bi-trash"></i></button>
                 </td>
               </tr>
             ))}
-            </tbody>
+          </tbody>
         </table>
         </div>
       </div>
 
-      {/* Paginación */}
-      {totalPages > 1 && (
-        <Pagination 
-          currentPage={currentPage} 
-          totalPages={totalPages} 
-          onPageChange={setCurrentPage} 
-        />
-      )}
+      {totalPages > 1 && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />}
 
-      {/* Modal de usuario */}
-      {showModal && (
-        <div 
-          className="modal show d-block glass-modal" 
-          tabIndex="-1" 
-          style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
-        >
-          <div className="modal-dialog modal-dialog-scrollable">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">
-                  <i className="bi bi-person-plus me-2"></i>
-                  {editingId ? 'Editar' : 'Nuevo'} Usuario
-                </h5>
-                <button 
-                  type="button" 
-                  className="btn-close" 
-                  onClick={() => { setShowModal(false); resetForm(); }}
-                ></button>
-              </div>
-              <form onSubmit={handleSubmit}>
-                <div className="modal-body" style={{ maxHeight: '70vh', overflowY: 'auto' }}>
-                  <div className="mb-3">
-                    <label className="form-label">Usuario *</label>
-                    <input 
-                      className="glass-input" 
-                      value={form.username} 
-                      onChange={e => setForm({ ...form, username: e.target.value })} 
-                      required 
-                      disabled={!!editingId} 
-                    />
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label">
-                      {editingId ? 'Nueva Contraseña' : 'Contraseña *'}
-                    </label>
-                    <input 
-                      type="password" 
-                      className="glass-input" 
-                      value={form.password} 
-                      onChange={e => setForm({ ...form, password: e.target.value })} 
-                      required={!editingId} 
-                    />
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label">Nombre</label>
-                    <input 
-                      className="glass-input" 
-                      value={form.nombre} 
-                      onChange={e => setForm({ ...form, nombre: e.target.value })} 
-                    />
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label">Rol</label>
-                    <select 
-                      className="form-select" 
-                      value={form.rol} 
-                      onChange={e => setForm({ ...form, rol: e.target.value })}
-                    >
-                      <option value="vendedor">Vendedor</option>
-                      <option value="admin">Administrador</option>
-                    </select>
-                  </div>
-                </div>
-                <div className="modal-footer">
-                  <button 
-                    type="button" 
-                    className="glass-btn" 
-                    onClick={() => { setShowModal(false); resetForm(); }}
-                  >
-                    Cancelar
-                  </button>
-                  <button type="submit" className="glass-btn glass-btn-primary">
-                    {editingId ? 'Actualizar' : 'Crear'}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
+      <FormModal
+        isOpen={showModal}
+        onClose={() => { setShowModal(false); reset(); setEditingId(null); }}
+        title={editingId ? 'Editar Usuario' : 'Nuevo Usuario'}
+        onSubmit={handleSubmit(onSubmit)}
+        isEditing={!!editingId}
+        isLoading={isSubmitting}
+      >
+        <Controller name="username" control={control} render={({ field }) => (
+          <FormInput label="Usuario" {...field} error={errors.username?.message} required icon="person" disabled={!!editingId} />
+        )} />
+        <Controller name="password" control={control} render={({ field }) => (
+          <FormInput label={editingId ? 'Nueva Contraseña' : 'Contraseña'} type="password" {...field} error={errors.password?.message} required={!editingId} icon="lock" />
+        )} />
+        <Controller name="nombre" control={control} render={({ field }) => (
+          <FormInput label="Nombre" {...field} error={errors.nombre?.message} required icon="person-badge" />
+        )} />
+        <Controller name="rol" control={control} render={({ field }) => (
+          <FormSelect label="Rol" options={rolOptions} {...field} error={errors.rol?.message} required />
+        )} />
+      </FormModal>
     </div>
   );
 };
