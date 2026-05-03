@@ -26,8 +26,9 @@ const Stock = () => {
       if (filters.id_producto) params.id_producto = filters.id_producto;
       if (filters.tipo) params.tipo = filters.tipo;
       if (filters.deposito) params.deposito = filters.deposito;
-      const { data } = await movimientoStockService.getAll(params);
-      setMovimientos(data);
+      const res = await movimientoStockService.getAll(params);
+      const arr = res.data?.data || res.data || [];
+      setMovimientos(Array.isArray(arr) ? arr : []);
     } catch {
       toast.error('Error al cargar movimientos');
     } finally {
@@ -37,15 +38,16 @@ const Stock = () => {
 
   const fetchProductos = async () => {
     try {
-      const { data } = await productoService.getAll();
-      setProductos(data.filter(p => p.activo));
+      const res = await productoService.getAll();
+      const arr = res.data?.data || res.data || [];
+      setProductos(Array.isArray(arr) ? arr.filter(p => p.activo) : []);
     } catch { toast.error('Error al cargar productos'); }
   };
 
   const fetchStock = async (productoId) => {
     try {
-      const { data } = await movimientoStockService.getStockActual(productoId, filters.deposito);
-      setStock(data);
+      const res = await movimientoStockService.getStockActual(productoId, filters.deposito);
+      setStock(res.data?.data || res.data || {});
     } catch { setStock({}); }
   };
 

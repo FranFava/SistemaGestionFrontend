@@ -16,8 +16,9 @@ const Categorias = () => {
 
   const fetchCategorias = async () => {
     try {
-      const { data } = await categoriaService.getAll();
-      setCategorias(data);
+      const res = await categoriaService.getAll();
+      const arr = res.data?.data || res.data || [];
+      setCategorias(arr);
     } catch {
       toast.error('Error al cargar categorias');
     } finally {

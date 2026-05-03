@@ -31,9 +31,10 @@ const ListasPrecio = () => {
 
   const fetchListas = async () => {
     try {
-      const { data } = await listaPrecioService.getAll();
-      setListas(data);
-      if (data.length && !selectedLista) setSelectedLista(data[0]._id);
+      const res = await listaPrecioService.getAll();
+      const arr = res.data?.data || res.data || [];
+      setListas(arr);
+      if (arr.length && !selectedLista) setSelectedLista(arr[0]._id);
     } catch {
       toast.error('Error al cargar listas de precios');
     } finally {
@@ -43,8 +44,9 @@ const ListasPrecio = () => {
 
   const fetchPrecios = async (listaId) => {
     try {
-      const { data } = await precioProductoService.getByLista(listaId);
-      setPrecios(data);
+      const res = await precioProductoService.getByLista(listaId);
+      const arr = res.data?.data || res.data || [];
+      setPrecios(arr);
     } catch {
       toast.error('Error al cargar precios');
     }
@@ -52,8 +54,9 @@ const ListasPrecio = () => {
 
   const fetchProductos = async () => {
     try {
-      const { data } = await productoService.getAll();
-      setProductos(data);
+      const res = await productoService.getAll();
+      const arr = res.data?.data || res.data || [];
+      setProductos(arr);
     } catch {
       toast.error('Error al cargar productos');
     }

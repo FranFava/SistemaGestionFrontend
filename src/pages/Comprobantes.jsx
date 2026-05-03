@@ -36,8 +36,9 @@ const Comprobantes = () => {
       if (filters.tipo) params.tipo = filters.tipo;
       if (filters.estado) params.estado = filters.estado;
       if (filters.moneda) params.moneda = filters.moneda;
-      const { data } = await comprobanteService.getAll(params);
-      setComprobantes(data);
+      const res = await comprobanteService.getAll(params);
+      const arr = res.data?.data || res.data || [];
+      setComprobantes(arr);
     } catch {
       toast.error('Error al cargar comprobantes');
     } finally {
@@ -47,22 +48,25 @@ const Comprobantes = () => {
 
   const fetchCuentas = async () => {
     try {
-      const { data } = await cuentaCorrienteService.getAll();
-      setCuentas(data);
+      const res = await cuentaCorrienteService.getAll();
+      const arr = res.data?.data || res.data || [];
+      setCuentas(arr);
     } catch { toast.error('Error al cargar cuentas'); }
   };
 
   const fetchTerceros = async () => {
     try {
-      const { data } = await terceroService.getAll();
-      setTerceros(data);
+      const res = await terceroService.getAll();
+      const arr = res.data?.data || res.data || [];
+      setTerceros(arr);
     } catch { toast.error('Error al cargar terceros'); }
   };
 
   const fetchProductos = async () => {
     try {
-      const { data } = await productoService.getAll();
-      setProductos(data.filter(p => p.activo));
+      const res = await productoService.getAll();
+      const arr = res.data?.data || res.data || [];
+      setProductos(arr.filter(p => p.activo));
     } catch { toast.error('Error al cargar productos'); }
   };
 
@@ -77,8 +81,9 @@ const Comprobantes = () => {
       if (editingId) {
         toast.info('Edicion no soportada para comprobantes con items');
       } else {
-        const { data } = await comprobanteService.create(payload);
-        toast.success(`Comprobante ${data.nro_comprobante} creado`);
+        const res = await comprobanteService.create(payload);
+        const created = res.data?.data || res.data;
+        toast.success(`Comprobante ${created.nro_comprobante} creado`);
       }
       setShowModal(false);
       resetForm();
