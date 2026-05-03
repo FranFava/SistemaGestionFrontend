@@ -332,19 +332,19 @@ const Comprobantes = () => {
               displayKey="nombre" valueKey="_id" placeholder="Seleccionar" />
           </div>
           <div className="col-md-2">
-            <label className="form-label small">Cantidad</label>
-            <input type="number" step="0.01" className="form-control form-control-sm glass-input" value={itemForm.cantidad}
-              onChange={e => setItemForm({ ...itemForm, cantidad: e.target.value })} />
+            <FormNumber label="Cantidad" value={itemForm.cantidad}
+              onChange={e => setItemForm({ ...itemForm, cantidad: e.target.value })}
+              step="0.01" />
           </div>
           <div className="col-md-2">
-            <label className="form-label small">P. Unitario</label>
-            <input type="number" step="0.01" className="form-control form-control-sm glass-input" value={itemForm.precio_unitario}
-              onChange={e => setItemForm({ ...itemForm, precio_unitario: e.target.value })} />
+            <FormNumber label="P. Unitario" value={itemForm.precio_unitario}
+              onChange={e => setItemForm({ ...itemForm, precio_unitario: e.target.value })}
+              prefix="$" step="0.01" />
           </div>
           <div className="col-md-2">
-            <label className="form-label small">Desc %</label>
-            <input type="number" step="0.01" className="form-control form-control-sm glass-input" value={itemForm.descuento_pct}
-              onChange={e => setItemForm({ ...itemForm, descuento_pct: e.target.value })} />
+            <FormNumber label="Desc %" value={itemForm.descuento_pct}
+              onChange={e => setItemForm({ ...itemForm, descuento_pct: e.target.value })}
+              suffix="%" min={0} max={100} step="0.01" />
           </div>
           <div className="col-md-2">
             <button type="button" className="btn btn-sm btn-outline-primary w-100" onClick={addItem}>
