@@ -666,6 +666,42 @@ body {
 }
 
 /* ------------------------------------------
+    Form Check - Checkboxes & Switches
+    ------------------------------------------ */
+.form-check-label {
+  color: #ffffff;
+}
+
+.form-check-input {
+  border-color: rgba(255, 255, 255, 0.25);
+  background-color: rgba(255, 255, 255, 0.08);
+  box-shadow: none;
+}
+
+.form-check-input:checked {
+  background-color: #667eea;
+  border-color: #667eea;
+}
+
+.form-check-input:focus {
+  border-color: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
+}
+
+.form-check-input:disabled {
+  opacity: 0.5;
+}
+
+/* Form Switch */
+.form-switch .form-check-input {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23ffffff'/%3e%3c/svg%3e");
+}
+
+.form-switch .form-check-input:checked {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23ffffff'/%3e%3c/svg%3e");
+}
+
+/* ------------------------------------------
     Dropdown
     ------------------------------------------ */
 .dropdown-menu {
